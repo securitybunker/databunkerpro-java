@@ -11,7 +11,7 @@
 
     <name>DatabunkerPro Java Client</name>
     <description>Java client library for DatabunkerPro API</description>
-    <url>https://github.com/databunkerpro/databunkerpro-java</url>
+    <url>https://github.com/securitybunker/databunkerpro-java</url>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -89,4 +89,35 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/securitybunker/databunkerpro-java</url>
+        </repository>
+    </distributionManagement>
+
+    <scm>
+        <connection>scm:git:git://github.com/securitybunker/databunkerpro-java.git</connection>
+        <developerConnection>scm:git:ssh://github.com/securitybunker/databunkerpro-java.git</developerConnection>
+        <url>https://github.com/securitybunker/databunkerpro-java</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>SecurityBunker</name>
+            <email>hello@databunker.org</email>
+            <organization>SecurityBunker</organization>
+            <organizationUrl>https://github.com/securitybunker</organizationUrl>
+        </developer>
+    </developers>
 </project> 
