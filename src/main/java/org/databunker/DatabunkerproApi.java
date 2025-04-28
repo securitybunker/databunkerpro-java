@@ -1,4 +1,4 @@
-package org.databunkerpro;
+package org.databunker;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
