@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * Java client for DatabunkerPro API
  */
-public class DatabunkerproApi {
+public class DatabunkerproApi implements AutoCloseable {
     private final String baseURL;
     private final String xBunkerToken;
     private final String xBunkerTenant;
@@ -448,6 +448,7 @@ public class DatabunkerproApi {
      *
      * @throws IOException If an I/O error occurs
      */
+    @Override
     public void close() throws IOException {
         httpClient.close();
     }

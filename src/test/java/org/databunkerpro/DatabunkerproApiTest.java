@@ -3,6 +3,7 @@ package org.databunkerpro;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -10,6 +11,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -22,32 +24,50 @@ import static org.junit.Assert.*;
 public class DatabunkerproApiTest {
     private DatabunkerproApi api;
     private static final String API_URL = "https://pro.databunker.org";
-    private static final String tenantName = System.getenv("DATABUNKER_TENANT");
-    private static final String apiToken = System.getenv("DATABUNKER_TOKEN");
-    private boolean serverAvailable = false;
+    private static String tenantName;
+    private static String apiToken;
+    private static boolean serverAvailable = false;
     private static final Random random = new Random();
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws IOException {
+        // Fetch tenant credentials from DatabunkerPro test environment
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet("https://databunker.org/api/newtenant.php");
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                HttpEntity entity = response.getEntity();
+                String responseString = EntityUtils.toString(entity);
+                ObjectMapper mapper = new ObjectMapper();
+                Map<String, Object> data = mapper.readValue(responseString, Map.class);
+                
+                if (data != null && "ok".equals(data.get("status"))) {
+                    tenantName = (String) data.get("tenantname");
+                    apiToken = (String) data.get("xtoken");
+                    
+                    // Test connection with new credentials
+                    try (DatabunkerproApi testApi = new DatabunkerproApi(API_URL, apiToken, tenantName)) {
+                        Map<String, Object> result = testApi.getSystemStats(null);
+                        serverAvailable = result != null && "ok".equals(result.get("status"));
+                        if (serverAvailable) {
+                            System.out.println("\nSuccessfully connected to DatabunkerPro server");
+                            System.out.println("Tenant: " + tenantName);
+                            System.out.println("API URL: " + API_URL);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            serverAvailable = false;
+            System.out.println("\nFailed to connect to DatabunkerPro server: " + e.getMessage());
+        }
+    }
 
     @Before
     public void setUp() throws IOException {
-        // Check if server is available
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpPost request = new HttpPost(API_URL + "/v2/SystemGetSystemStats");
-            request.setHeader("Content-Type", "application/json");
-            if (tenantName != null && !tenantName.isEmpty()) {
-                request.setHeader("X-Bunker-Tenant", tenantName);
-            }
-            if (apiToken != null && !apiToken.isEmpty()) {
-                request.setHeader("X-Bunker-Token", apiToken);
-            }
-
-            try (CloseableHttpResponse response = client.execute(request)) {
-                serverAvailable = response.getStatusLine().getStatusCode() == 200;
-            }
+        if (!serverAvailable) {
+            throw new RuntimeException("DatabunkerPro server is not available or credentials could not be obtained");
         }
-
-        if (serverAvailable) {
-            api = new DatabunkerproApi(API_URL, apiToken, tenantName);
-        }
+        api = new DatabunkerproApi(API_URL, apiToken, tenantName);
     }
 
     @After
