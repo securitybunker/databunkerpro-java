@@ -398,49 +398,77 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("GroupList", data, requestMetadata);
     }
 
-    // Add real API calls that exist in PHP implementation
-    public Map<String, Object> createToken(String field, Map<String, Object> record, Map<String, Object> requestMetadata) throws IOException {
+    // Token Management (for example for credit cards)
+    public Map<String, Object> createToken(String tokentype, Object record, Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
-        data.put("field", field);
+        data.put("tokentype", tokentype);
         data.put("record", record);
-        return makeRequest("TokenCreate", data, requestMetadata);
+        if (options != null) {
+            data.putAll(options);
+        }
+        if (requestMetadata != null) {
+            data.put("request_metadata", requestMetadata);
+        }
+        return makeRequest("TokenCreate", data, null);
+    }
+
+    public Map<String, Object> createTokensBulk(Object[] records, Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("records", records);
+        if (options != null) {
+            data.putAll(options);
+        }
+        if (requestMetadata != null) {
+            data.put("request_metadata", requestMetadata);
+        }
+        return makeRequest("TokenCreateBulk", data, null);
     }
 
     public Map<String, Object> getToken(String token, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("token", token);
-        return makeRequest("TokenGet", data, requestMetadata);
+        if (requestMetadata != null) {
+            data.put("request_metadata", requestMetadata);
+        }
+        return makeRequest("TokenGet", data, null);
     }
 
     public Map<String, Object> deleteToken(String token, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("token", token);
-        return makeRequest("TokenDelete", data, requestMetadata);
-    }
-
-    public Map<String, Object> createTokensBulk(Map<String, Object>[] records, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("records", records);
-        return makeRequest("TokenCreateBulk", data, requestMetadata);
+        if (requestMetadata != null) {
+            data.put("request_metadata", requestMetadata);
+        }
+        return makeRequest("TokenDelete", data, null);
     }
 
     public Map<String, Object> listTokensBulk(String[] tokens, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("tokens", tokens);
-        return makeRequest("TokenListBulk", data, requestMetadata);
+        if (requestMetadata != null) {
+            data.put("request_metadata", requestMetadata);
+        }
+        return makeRequest("TokenListBulk", data, null);
     }
 
     public Map<String, Object> deleteTokensBulk(String[] tokens, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("tokens", tokens);
-        return makeRequest("TokenDeleteBulk", data, requestMetadata);
+        if (requestMetadata != null) {
+            data.put("request_metadata", requestMetadata);
+        }
+        return makeRequest("TokenDeleteBulk", data, null);
     }
 
-    public Map<String, Object> createXToken(String field, Map<String, Object> record, Map<String, Object> requestMetadata) throws IOException {
+    // Access Token Management
+    public Map<String, Object> createXToken(String mode, String identity, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
-        data.put("field", field);
-        data.put("record", record);
-        return makeRequest("XTokenCreate", data, requestMetadata);
+        data.put("mode", mode);
+        data.put("identity", identity);
+        if (requestMetadata != null) {
+            data.put("request_metadata", requestMetadata);
+        }
+        return makeRequest("XTokenCreate", data, null);
     }
 
     /**
