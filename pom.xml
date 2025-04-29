@@ -114,10 +114,10 @@
 
     <developers>
         <developer>
-            <name>SecurityBunker</name>
+            <name>Databunket team</name>
             <email>hello@databunker.org</email>
-            <organization>SecurityBunker</organization>
-            <organizationUrl>https://github.com/securitybunker</organizationUrl>
+            <organization>Databunker.org</organization>
+            <organizationUrl>https://databunker.org/</organizationUrl>
         </developer>
     </developers>
 </project> 
