@@ -498,6 +498,208 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("XTokenCreate", data, null);
     }
 
+    // User Request Management
+    public Map<String, Object> getUserRequest(String requestuuid, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("requestuuid", requestuuid);
+        return makeRequest("UserRequestGet", data, requestMetadata);
+    }
+
+    public Map<String, Object> listUserRequests(String mode, String identity, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("offset", offset);
+        data.put("limit", limit);
+        return makeRequest("UserRequestListUserRequests", data, requestMetadata);
+    }
+
+    public Map<String, Object> cancelUserRequest(String requestuuid, String reason, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("requestuuid", requestuuid);
+        data.put("reason", reason);
+        return makeRequest("UserRequestCancel", data, requestMetadata);
+    }
+
+    public Map<String, Object> approveUserRequest(String requestuuid, String reason, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("requestuuid", requestuuid);
+        data.put("reason", reason);
+        return makeRequest("UserRequestApprove", data, requestMetadata);
+    }
+
+    // App Data Management
+    public Map<String, Object> createAppData(String mode, String identity, String appname, Map<String, Object> data, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> requestData = new HashMap<>();
+        requestData.put("mode", mode);
+        requestData.put("identity", identity);
+        requestData.put("appname", appname);
+        requestData.put("data", data);
+        return makeRequest("AppdataCreate", requestData, requestMetadata);
+    }
+
+    public Map<String, Object> getUserAppData(String mode, String identity, String appname, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("appname", appname);
+        return makeRequest("AppdataGet", data, requestMetadata);
+    }
+
+    public Map<String, Object> updateAppData(String mode, String identity, String appname, Map<String, Object> data, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> requestData = new HashMap<>();
+        requestData.put("mode", mode);
+        requestData.put("identity", identity);
+        requestData.put("appname", appname);
+        requestData.put("data", data);
+        return makeRequest("AppdataUpdate", requestData, requestMetadata);
+    }
+
+    public Map<String, Object> listUserAppDataRecords(String mode, String identity, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        return makeRequest("AppdataListUserAppNames", data, requestMetadata);
+    }
+
+    public Map<String, Object> listAppNames(Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("AppdataListAppNames", null, requestMetadata);
+    }
+
+    // Legal Basis Management
+    public Map<String, Object> createLegalBasis(Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("LegalBasisCreate", options, requestMetadata);
+    }
+
+    public Map<String, Object> updateLegalBasis(Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("LegalBasisUpdate", options, requestMetadata);
+    }
+
+    public Map<String, Object> listAgreements(Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("LegalBasisListAgreements", null, requestMetadata);
+    }
+
+    // Agreement Management
+    public Map<String, Object> acceptAgreement(String mode, String identity, Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.putAll(options);
+        return makeRequest("AgreementAccept", data, requestMetadata);
+    }
+
+    public Map<String, Object> cancelAgreement(String mode, String identity, String brief, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("brief", brief);
+        return makeRequest("AgreementCancel", data, requestMetadata);
+    }
+
+    public Map<String, Object> getUserAgreement(String mode, String identity, String brief, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("brief", brief);
+        return makeRequest("AgreementGet", data, requestMetadata);
+    }
+
+    public Map<String, Object> listUserAgreements(String mode, String identity, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        return makeRequest("AgreementListUserAgreements", data, requestMetadata);
+    }
+
+    // Processing Activity Management
+    public Map<String, Object> listProcessingActivities(Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("ProcessingActivityListActivities", null, requestMetadata);
+    }
+
+    // Connector Management
+    public Map<String, Object> listSupportedConnectors(Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("ConnectorListSupportedConnectors", null, requestMetadata);
+    }
+
+    public Map<String, Object> listConnectors(int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("offset", offset);
+        data.put("limit", limit);
+        return makeRequest("ConnectorListConnectors", data, requestMetadata);
+    }
+
+    public Map<String, Object> connectorGetUserData(String mode, String identity, String connectorid, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("connectorid", connectorid);
+        return makeRequest("ConnectorGetUserData", data, requestMetadata);
+    }
+
+    public Map<String, Object> connectorGetUserExtraData(String mode, String identity, String connectorid, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("connectorid", connectorid);
+        return makeRequest("ConnectorGetUserExtraData", data, requestMetadata);
+    }
+
+    public Map<String, Object> connectorDeleteUser(String mode, String identity, String connectorid, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("connectorid", connectorid);
+        return makeRequest("ConnectorDeleteUser", data, requestMetadata);
+    }
+
+    // Group Management
+    public Map<String, Object> listAllGroups(Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("GroupListAllGroups", null, requestMetadata);
+    }
+
+    // Role Management
+    public Map<String, Object> createRole(String rolename, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("rolename", rolename);
+        return makeRequest("RoleCreate", data, requestMetadata);
+    }
+
+    // Policy Management
+    public Map<String, Object> createPolicy(Map<String, Object> data, Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("PolicyCreate", data, requestMetadata);
+    }
+
+    public Map<String, Object> getPolicy(String policyname, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        if (policyname != null) {
+            if (policyname.matches("\\d+")) {
+                data.put("policyid", policyname);
+            } else {
+                data.put("policyname", policyname);
+            }
+        }
+        return makeRequest("PolicyGet", data, requestMetadata);
+    }
+
+    public Map<String, Object> listPolicies(Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("PolicyListAllPolicies", null, requestMetadata);
+    }
+
+    // Shared Record Management
+    public Map<String, Object> createSharedRecord(String mode, String identity, Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.putAll(options);
+        return makeRequest("SharedRecordCreate", data, requestMetadata);
+    }
+
+    public Map<String, Object> getSharedRecord(String recorduuid, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("recorduuid", recorduuid);
+        return makeRequest("SharedRecordGet", data, requestMetadata);
+    }
+
     /**
      * Closes the HTTP client
      *
