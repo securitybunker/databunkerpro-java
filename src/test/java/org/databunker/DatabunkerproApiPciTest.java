@@ -151,9 +151,10 @@ public class DatabunkerproApiPciTest {
             "4716182333661234"
         };
 
-        Object[] records = new Object[creditCards.length];
+        @SuppressWarnings("unchecked")
+        Map<String, String>[] records = new Map[creditCards.length];
         for (int i = 0; i < creditCards.length; i++) {
-            Map<String, Object> record = new HashMap<>();
+            Map<String, String> record = new HashMap<>();
             record.put("tokentype", "creditcard");
             record.put("record", creditCards[i]);
             records[i] = record;
@@ -243,7 +244,7 @@ public class DatabunkerproApiPciTest {
 
         try {
             // Test with empty records array
-            Map<String, Object> emptyRecordsResponse = api.createTokensBulk(new Object[0], options, null);
+            Map<String, Object> emptyRecordsResponse = api.createTokensBulk(new Map[0], options, null);
             if (emptyRecordsResponse != null) {
                 assertEquals("error", emptyRecordsResponse.get("status"));
                 assertNotNull(emptyRecordsResponse.get("message"));
