@@ -253,6 +253,31 @@ public class DatabunkerproApi implements AutoCloseable {
     }
 
     // Bulk Operations - Additional methods
+    public Map<String, Object> bulkListUnlock(Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("BulkListUnlock", null, requestMetadata);
+    }
+
+    public Map<String, Object> bulkListUsers(String unlockuuid, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("unlockuuid", unlockuuid);
+        data.put("offset", offset);
+        data.put("limit", limit);
+        return makeRequest("BulkListUsers", data, requestMetadata);
+    }
+
+    public Map<String, Object> bulkListGroupUsers(String unlockuuid, String groupname, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("unlockuuid", unlockuuid);
+        data.put("offset", offset);
+        data.put("limit", limit);
+        if (groupname.matches("\\d+")) {
+            data.put("groupid", groupname);
+        } else {
+            data.put("groupname", groupname);
+        }
+        return makeRequest("BulkListGroupUsers", data, requestMetadata);
+    }
+
     public Map<String, Object> bulkListUserRequests(String unlockuuid, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("unlockuuid", unlockuuid);
@@ -267,6 +292,26 @@ public class DatabunkerproApi implements AutoCloseable {
         data.put("offset", offset);
         data.put("limit", limit);
         return makeRequest("BulkListAuditEvents", data, requestMetadata);
+    }
+
+    public Map<String, Object> bulkListTokens(String unlockuuid, String[] tokens, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("unlockuuid", unlockuuid);
+        data.put("tokens", tokens);
+        if (requestMetadata != null) {
+            data.put("request_metadata", requestMetadata);
+        }
+        return makeRequest("BulkListTokens", data, null);
+    }
+
+    public Map<String, Object> bulkDeleteTokens(String unlockuuid, String[] tokens, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("unlockuuid", unlockuuid);
+        data.put("tokens", tokens);
+        if (requestMetadata != null) {
+            data.put("request_metadata", requestMetadata);
+        }
+        return makeRequest("BulkDeleteTokens", data, null);
     }
 
     // System Configuration - Additional methods
@@ -440,24 +485,6 @@ public class DatabunkerproApi implements AutoCloseable {
             data.put("request_metadata", requestMetadata);
         }
         return makeRequest("TokenDelete", data, null);
-    }
-
-    public Map<String, Object> listTokensBulk(String[] tokens, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("tokens", tokens);
-        if (requestMetadata != null) {
-            data.put("request_metadata", requestMetadata);
-        }
-        return makeRequest("TokenListBulk", data, null);
-    }
-
-    public Map<String, Object> deleteTokensBulk(String[] tokens, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("tokens", tokens);
-        if (requestMetadata != null) {
-            data.put("request_metadata", requestMetadata);
-        }
-        return makeRequest("TokenDeleteBulk", data, null);
     }
 
     // Access Token Management

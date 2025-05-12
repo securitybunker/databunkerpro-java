@@ -188,7 +188,14 @@ public class DatabunkerproApiPciTest {
             tokenList[i] = (String) createdTokens.get(i).get("tokenbase");
         }
 
-        Map<String, Object> bulkData = api.listTokensBulk(tokenList, null);
+        // Get unlockuuid for bulk operations
+        Map<String, Object> unlockResult = api.bulkListUnlock(null);
+        assertNotNull(unlockResult);
+        assertEquals("ok", unlockResult.get("status"));
+        String unlockuuid = (String) unlockResult.get("unlockuuid");
+        assertNotNull(unlockuuid);
+
+        Map<String, Object> bulkData = api.bulkListTokens(unlockuuid, tokenList, null);
         System.out.println("Bulk data: " + bulkData);
         assertNotNull(bulkData);
         assertEquals("ok", bulkData.get("status"));
@@ -210,12 +217,12 @@ public class DatabunkerproApiPciTest {
         System.out.println("Successfully retrieved all tokenized records in bulk");
 
         // Step 3: Delete multiple tokens in bulk
-        Map<String, Object> deleteBulkResult = api.deleteTokensBulk(tokenList, null);
+        Map<String, Object> deleteBulkResult = api.bulkDeleteTokens(unlockuuid, tokenList, null);
         assertNotNull(deleteBulkResult);
         assertEquals("ok", deleteBulkResult.get("status"));
 
         // Verify all tokens are deleted
-        Map<String, Object> remainingTokens = api.listTokensBulk(tokenList, null);
+        Map<String, Object> remainingTokens = api.bulkListTokens(unlockuuid, tokenList, null);
         assertNotNull(remainingTokens);
         assertEquals("ok", remainingTokens.get("status"));
         assertEquals(0, ((List<?>) remainingTokens.get("rows")).size());
