@@ -212,7 +212,6 @@ public class DatabunkerproApiTest {
         // Get session
         Map<String, Object> getResult = api.getSession(sessionuuid, null);
         assertNotNull(getResult);
-        System.out.println("Full Response: " + getResult);
         assertEquals("ok", getResult.get("status"));
         assertNotNull(getResult.get("sessiondata"));
         System.out.println("Successfully retrieved session: " + sessionuuid);
@@ -271,7 +270,7 @@ public class DatabunkerproApiTest {
         Map<String, Object> options = Map.of(
             "fields", "name,email",
             "partner", "test-partner",
-            "finaltime", "12m"
+            "finaltime", "1d"
         );
         Map<String, Object> createResult = api.createSharedRecord("email", email, options, null);
         assertNotNull(createResult);
@@ -284,7 +283,7 @@ public class DatabunkerproApiTest {
         Map<String, Object> getResult = api.getSharedRecord(recorduuid, null);
         assertNotNull(getResult);
         assertEquals("ok", getResult.get("status"));
-        assertNotNull(getResult.get("record"));
+        assertNotNull(getResult.get("data"));
         System.out.println("Successfully retrieved shared record: " + recorduuid);
     }
 } 
