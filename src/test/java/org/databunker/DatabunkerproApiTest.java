@@ -149,4 +149,151 @@ public class DatabunkerproApiTest {
         assertEquals("ok", result.get("status"));
         assertNotNull(result.get("stats"));
     }
+
+    @Test
+    public void testGetUIConf() throws IOException {
+        System.out.println("\nTesting UI configuration retrieval...");
+        Map<String, Object> result = api.getUIConf();
+        assertNotNull(result);
+        assertEquals("ok", result.get("status"));
+        assertNotNull(result.get("conf"));
+        System.out.println("Successfully retrieved UI configuration");
+    }
+
+    @Test
+    public void testGetTenantConf() throws IOException {
+        System.out.println("\nTesting tenant configuration retrieval...");
+        Map<String, Object> result = api.getTenantConf();
+        assertNotNull(result);
+        assertEquals("ok", result.get("status"));
+        assertNotNull(result.get("conf"));
+        System.out.println("Successfully retrieved tenant configuration");
+    }
+
+    @Test
+    public void testGetUserHTMLReport() throws IOException {
+        System.out.println("\nTesting user HTML report generation...");
+        String email = "test" + random.nextInt(1000000) + "@example.com";
+        Map<String, Object> userData = Map.of(
+            "email", email,
+            "name", "Test User " + random.nextInt(1000000),
+            "phone", String.valueOf(random.nextInt(1000000))
+        );
+        api.createUser(userData, null, null);
+
+        Map<String, Object> result = api.getUserHTMLReport("email", email, null);
+        assertNotNull(result);
+        assertEquals("ok", result.get("status"));
+        assertNotNull(result.get("html"));
+        System.out.println("Successfully generated HTML report for user: " + email);
+    }
+
+    @Test
+    public void testGetUserReport() throws IOException {
+        System.out.println("\nTesting user report generation...");
+        String email = "test" + random.nextInt(1000000) + "@example.com";
+        Map<String, Object> userData = Map.of(
+            "email", email,
+            "name", "Test User " + random.nextInt(1000000),
+            "phone", String.valueOf(random.nextInt(1000000))
+        );
+        api.createUser(userData, null, null);
+
+        Map<String, Object> result = api.getUserReport("email", email, null);
+        assertNotNull(result);
+        assertEquals("ok", result.get("status"));
+        assertNotNull(result.get("report"));
+        System.out.println("Successfully generated report for user: " + email);
+    }
+
+    @Test
+    public void testSessionManagement() throws IOException {
+        System.out.println("\nTesting session management...");
+        String sessionuuid = java.util.UUID.randomUUID().toString();
+        Map<String, Object> sessionData = Map.of(
+            "userid", "test-user-" + random.nextInt(1000000),
+            "ip", "127.0.0.1",
+            "useragent", "Test Browser"
+        );
+
+        // Create/Update session
+        Map<String, Object> upsertResult = api.upsertSession(sessionuuid, sessionData, null);
+        assertNotNull(upsertResult);
+        assertEquals("ok", upsertResult.get("status"));
+        System.out.println("Successfully created/updated session: " + sessionuuid);
+
+        // Get session
+        Map<String, Object> getResult = api.getSession(sessionuuid, null);
+        assertNotNull(getResult);
+        assertEquals("ok", getResult.get("status"));
+        assertNotNull(getResult.get("session"));
+        System.out.println("Successfully retrieved session: " + sessionuuid);
+
+        // Delete session
+        Map<String, Object> deleteResult = api.deleteSession(sessionuuid, null);
+        assertNotNull(deleteResult);
+        assertEquals("ok", deleteResult.get("status"));
+        System.out.println("Successfully deleted session: " + sessionuuid);
+    }
+
+    @Test
+    public void testGetSystemMetrics() throws IOException {
+        System.out.println("\nTesting system metrics retrieval...");
+        Map<String, Object> result = api.getSystemMetrics(null);
+        assertNotNull(result);
+        assertEquals("ok", result.get("status"));
+        assertNotNull(result.get("metrics"));
+        System.out.println("Successfully retrieved system metrics");
+    }
+
+    @Test
+    public void testParsePrometheusMetrics() throws IOException {
+        System.out.println("\nTesting Prometheus metrics parsing...");
+        String metricsText = "# HELP http_requests_total Total number of HTTP requests\n" +
+                           "# TYPE http_requests_total counter\n" +
+                           "http_requests_total{method=\"GET\",status=\"200\"} 100\n" +
+                           "http_requests_total{method=\"POST\",status=\"200\"} 50\n" +
+                           "# HELP cpu_usage CPU usage percentage\n" +
+                           "# TYPE cpu_usage gauge\n" +
+                           "cpu_usage 75.5";
+
+        Map<String, Object> result = api.parsePrometheusMetrics(metricsText);
+        assertNotNull(result);
+        assertEquals(100.0, result.get("http_requests_total{method=\"GET\",status=\"200\"}"));
+        assertEquals(50.0, result.get("http_requests_total{method=\"POST\",status=\"200\"}"));
+        assertEquals(75.5, result.get("cpu_usage"));
+        System.out.println("Successfully parsed Prometheus metrics");
+    }
+
+    @Test
+    public void testSharedRecordManagement() throws IOException {
+        System.out.println("\nTesting shared record management...");
+        String email = "test" + random.nextInt(1000000) + "@example.com";
+        Map<String, Object> userData = Map.of(
+            "email", email,
+            "name", "Test User " + random.nextInt(1000000),
+            "phone", String.valueOf(random.nextInt(1000000))
+        );
+        api.createUser(userData, null, null);
+
+        // Create shared record
+        Map<String, Object> options = Map.of(
+            "fields", "name,email",
+            "partner", "test-partner",
+            "finaltime", "12m"
+        );
+        Map<String, Object> createResult = api.createSharedRecord("email", email, options, null);
+        assertNotNull(createResult);
+        assertEquals("ok", createResult.get("status"));
+        assertNotNull(createResult.get("recorduuid"));
+        String recorduuid = (String) createResult.get("recorduuid");
+        System.out.println("Successfully created shared record: " + recorduuid);
+
+        // Get shared record
+        Map<String, Object> getResult = api.getSharedRecord(recorduuid, null);
+        assertNotNull(getResult);
+        assertEquals("ok", getResult.get("status"));
+        assertNotNull(getResult.get("record"));
+        System.out.println("Successfully retrieved shared record: " + recorduuid);
+    }
 } 

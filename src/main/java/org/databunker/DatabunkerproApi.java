@@ -78,14 +78,41 @@ public class DatabunkerproApi implements AutoCloseable {
     }
 
     /**
-     * Creates a new user
+     * Makes a raw request to the DatabunkerPro API and returns the response as a byte array
      *
-     * @param profile         User profile data
-     * @param options         Additional options
+     * @param endpoint        The API endpoint
+     * @param data           The request data
      * @param requestMetadata Additional request metadata
-     * @return The API response
+     * @return The raw response as a byte array
      * @throws IOException If an I/O error occurs
      */
+    private byte[] rawRequest(String endpoint, Map<String, Object> data, Map<String, Object> requestMetadata) throws IOException {
+        String url = baseURL + "/v2/" + endpoint;
+        HttpPost request = new HttpPost(url);
+
+        // Set headers
+        request.setHeader("Content-Type", "application/json");
+        if (xBunkerToken != null && !xBunkerToken.isEmpty()) {
+            request.setHeader("X-Bunker-Token", xBunkerToken);
+        }
+
+        // Set request body if needed
+        if (data != null || requestMetadata != null) {
+            Map<String, Object> bodyData = data != null ? data : new HashMap<>();
+            if (requestMetadata != null) {
+                bodyData.put("request_metadata", requestMetadata);
+            }
+            StringEntity entity = new StringEntity(objectMapper.writeValueAsString(bodyData));
+            request.setEntity(entity);
+        }
+
+        try (CloseableHttpResponse response = httpClient.execute(request)) {
+            HttpEntity entity = response.getEntity();
+            return EntityUtils.toByteArray(entity);
+        }
+    }
+
+    // User Management
     public Map<String, Object> createUser(Map<String, Object> profile, Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("profile", profile);
@@ -124,15 +151,6 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("UserCreate", data, requestMetadata);
     }
 
-    /**
-     * Gets a user by mode and identity
-     *
-     * @param mode            The mode (e.g., "email", "phone")
-     * @param identity        The identity value
-     * @param requestMetadata Additional request metadata
-     * @return The API response
-     * @throws IOException If an I/O error occurs
-     */
     public Map<String, Object> getUser(String mode, String identity, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("mode", mode);
@@ -140,33 +158,6 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("UserGet", data, requestMetadata);
     }
 
-    /**
-     * Updates a user's profile
-     *
-     * @param mode            The mode (e.g., "email", "phone")
-     * @param identity        The identity value
-     * @param profile         The updated profile data
-     * @param requestMetadata Additional request metadata
-     * @return The API response
-     * @throws IOException If an I/O error occurs
-     */
-    public Map<String, Object> updateUser(String mode, String identity, Map<String, Object> profile, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("mode", mode);
-        data.put("identity", identity);
-        data.put("profile", profile);
-        return makeRequest("UserUpdate", data, requestMetadata);
-    }
-
-    /**
-     * Deletes a user
-     *
-     * @param mode            The mode (e.g., "email", "phone")
-     * @param identity        The identity value
-     * @param requestMetadata Additional request metadata
-     * @return The API response
-     * @throws IOException If an I/O error occurs
-     */
     public Map<String, Object> deleteUser(String mode, String identity, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("mode", mode);
@@ -174,23 +165,19 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("UserDelete", data, requestMetadata);
     }
 
-    /**
-     * Gets system statistics
-     *
-     * @param requestMetadata Additional request metadata
-     * @return The API response
-     * @throws IOException If an I/O error occurs
-     */
-    public Map<String, Object> getSystemStats(Map<String, Object> requestMetadata) throws IOException {
-        return makeRequest("SystemGetSystemStats", null, requestMetadata);
-    }
-
-    // User Management - Additional methods
     public Map<String, Object> requestUserDeletion(String mode, String identity, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("mode", mode);
         data.put("identity", identity);
         return makeRequest("UserDeleteRequest", data, requestMetadata);
+    }
+
+    public Map<String, Object> updateUser(String mode, String identity, Map<String, Object> profile, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("profile", profile);
+        return makeRequest("UserUpdate", data, requestMetadata);
     }
 
     public Map<String, Object> requestUserUpdate(String mode, String identity, Map<String, Object> profile, Map<String, Object> requestMetadata) throws IOException {
@@ -365,6 +352,28 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("ConnectorListConnectors", data, requestMetadata);
     }
 
+    public Map<String, Object> createConnector(Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("ConnectorCreate", options, requestMetadata);
+    }
+
+    public Map<String, Object> updateConnector(Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("ConnectorUpdate", options, requestMetadata);
+    }
+
+    public Map<String, Object> validateConnectorConnectivity(Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("ConnectorValidateConnectivity", options, requestMetadata);
+    }
+
+    public Map<String, Object> deleteConnector(String connectorid, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("connectorid", connectorid);
+        return makeRequest("ConnectorDelete", data, requestMetadata);
+    }
+
+    public Map<String, Object> getTableMetadata(Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("ConnectorGetTableMetaData", options, requestMetadata);
+    }
+
     public Map<String, Object> connectorGetUserData(String mode, String identity, String connectorid, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("mode", mode);
@@ -411,68 +420,19 @@ public class DatabunkerproApi implements AutoCloseable {
         Map<String, Object> data = new HashMap<>();
         data.put("mode", mode);
         data.put("identity", identity);
-        data.put("groupname", groupname);
-        if (rolename != null) {
-            data.put("rolename", rolename);
+        if (groupname.matches("\\d+")) {
+            data.put("groupid", groupname);
+        } else {
+            data.put("groupname", groupname);
         }
-        return makeRequest("GroupAddUser", data, requestMetadata);
-    }
-
-    // Role Management
-    public Map<String, Object> createRole(String rolename, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("rolename", rolename);
-        return makeRequest("RoleCreate", data, requestMetadata);
-    }
-
-    // Policy Management
-    public Map<String, Object> createPolicy(Map<String, Object> data, Map<String, Object> requestMetadata) throws IOException {
-        return makeRequest("PolicyCreate", data, requestMetadata);
-    }
-
-    public Map<String, Object> getPolicy(String policyname, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        if (policyname != null) {
-            if (policyname.matches("\\d+")) {
-                data.put("policyid", policyname);
+        if (rolename != null) {
+            if (rolename.matches("\\d+")) {
+                data.put("roleid", rolename);
             } else {
-                data.put("policyname", policyname);
+                data.put("rolename", rolename);
             }
         }
-        return makeRequest("PolicyGet", data, requestMetadata);
-    }
-
-    public Map<String, Object> listPolicies(Map<String, Object> requestMetadata) throws IOException {
-        return makeRequest("PolicyListAllPolicies", null, requestMetadata);
-    }
-
-    public Map<String, Object> linkPolicy(String rolename, String policyname, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("rolename", rolename);
-        data.put("policyname", policyname);
-        return makeRequest("PolicyLink", data, requestMetadata);
-    }
-
-    public Map<String, Object> updatePolicy(String policyid, Map<String, Object> data, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> requestData = new HashMap<>();
-        requestData.put("policyid", policyid);
-        requestData.putAll(data);
-        return makeRequest("PolicyUpdate", requestData, requestMetadata);
-    }
-
-    // Shared Record Management
-    public Map<String, Object> createSharedRecord(String mode, String identity, Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("mode", mode);
-        data.put("identity", identity);
-        data.putAll(options);
-        return makeRequest("SharedRecordCreate", data, requestMetadata);
-    }
-
-    public Map<String, Object> getSharedRecord(String recorduuid, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("recorduuid", recorduuid);
-        return makeRequest("SharedRecordGet", data, requestMetadata);
+        return makeRequest("GroupAddUser", data, requestMetadata);
     }
 
     // Access Token Management
@@ -480,22 +440,10 @@ public class DatabunkerproApi implements AutoCloseable {
         Map<String, Object> data = new HashMap<>();
         data.put("mode", mode);
         data.put("identity", identity);
-        if (requestMetadata != null) {
-            data.put("request_metadata", requestMetadata);
-        }
-        return makeRequest("XTokenCreate", data, null);
+        return makeRequest("XTokenCreate", data, requestMetadata);
     }
 
-    // Token Management (for example for credit cards)
-    /**
-     * Creates a token for sensitive data like credit card numbers
-     * @param tokentype Type of token (e.g., 'creditcard')
-     * @param record The sensitive data to tokenize
-     * @param options Optional parameters for token creation
-     * @param requestMetadata Optional request metadata
-     * @return The created token information
-     * @throws IOException If an I/O error occurs
-     */
+    // Token Management
     public Map<String, Object> createToken(String tokentype, String record, Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("tokentype", tokentype);
@@ -506,14 +454,6 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("TokenCreate", data, requestMetadata);
     }
 
-    /**
-     * Creates multiple tokens in bulk for sensitive data
-     * @param records Array of records to tokenize, each containing tokentype and record
-     * @param options Optional parameters for token creation
-     * @param requestMetadata Optional request metadata
-     * @return The created tokens information
-     * @throws IOException If an I/O error occurs
-     */
     public Map<String, Object> createTokensBulk(Map<String, String>[] records, Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("records", records);
@@ -535,56 +475,102 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("TokenDelete", data, requestMetadata);
     }
 
+    // Audit Management
+    public Map<String, Object> listUserAuditEvents(String mode, String identity, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("offset", offset);
+        data.put("limit", limit);
+        return makeRequest("AuditListUserEvents", data, requestMetadata);
+    }
+
+    public Map<String, Object> getAuditEvent(String auditeventuuid, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("auditeventuuid", auditeventuuid);
+        return makeRequest("AuditGetEvent", data, requestMetadata);
+    }
+
+    // Tenant Management
+    public Map<String, Object> createTenant(Map<String, Object> data, Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("TenantCreate", data, requestMetadata);
+    }
+
+    public Map<String, Object> getTenant(String tenantid, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("tenantid", tenantid);
+        return makeRequest("TenantGet", data, requestMetadata);
+    }
+
+    public Map<String, Object> updateTenant(String tenantid, String tenantname, String tenantorg, String email, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("tenantid", tenantid);
+        data.put("tenantname", tenantname);
+        data.put("tenantorg", tenantorg);
+        data.put("email", email);
+        return makeRequest("TenantUpdate", data, requestMetadata);
+    }
+
+    public Map<String, Object> deleteTenant(String tenantid, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("tenantid", tenantid);
+        return makeRequest("TenantDelete", data, requestMetadata);
+    }
+
+    public Map<String, Object> listTenants(int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("offset", offset);
+        data.put("limit", limit);
+        return makeRequest("TenantListTenants", data, requestMetadata);
+    }
+
+    // Role Management
+    public Map<String, Object> createRole(String rolename, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("rolename", rolename);
+        return makeRequest("RoleCreate", data, requestMetadata);
+    }
+
+    public Map<String, Object> linkPolicy(String rolename, String policyname, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("rolename", rolename);
+        data.put("policyname", policyname);
+        return makeRequest("RoleLinkPolicy", data, requestMetadata);
+    }
+
+    // Policy Management
+    public Map<String, Object> createPolicy(Map<String, Object> data, Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("PolicyCreate", data, requestMetadata);
+    }
+
+    public Map<String, Object> updatePolicy(String policyid, Map<String, Object> data, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> requestData = new HashMap<>();
+        requestData.put("policyid", policyid);
+        requestData.putAll(data);
+        return makeRequest("PolicyUpdate", requestData, requestMetadata);
+    }
+
+    public Map<String, Object> getPolicy(String policyname, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        if (policyname != null) {
+            if (policyname.matches("\\d+")) {
+                data.put("policyid", policyname);
+            } else {
+                data.put("policyname", policyname);
+            }
+        }
+        return makeRequest("PolicyGet", data, requestMetadata);
+    }
+
+    public Map<String, Object> listPolicies(Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("PolicyListAllPolicies", null, requestMetadata);
+    }
+
     // Bulk Operations
-    /**
-     * Initializes a bulk operation session
-     * @param requestMetadata Optional request metadata
-     * @return The unlock UUID for bulk operations
-     * @throws IOException If an I/O error occurs
-     */
     public Map<String, Object> bulkListUnlock(Map<String, Object> requestMetadata) throws IOException {
         return makeRequest("BulkListUnlock", null, requestMetadata);
     }
 
-    /**
-     * Lists multiple tokens in bulk
-     * @param unlockuuid The unlock UUID from bulkListUnlock
-     * @param tokens Array of tokens to list
-     * @param requestMetadata Optional request metadata
-     * @return The bulk token data
-     * @throws IOException If an I/O error occurs
-     */
-    public Map<String, Object> bulkListTokens(String unlockuuid, String[] tokens, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("unlockuuid", unlockuuid);
-        data.put("tokens", tokens);
-        return makeRequest("BulkListTokens", data, requestMetadata);
-    }
-
-    /**
-     * Deletes multiple tokens in bulk
-     * @param unlockuuid The unlock UUID from bulkListUnlock
-     * @param tokens Array of tokens to delete
-     * @param requestMetadata Optional request metadata
-     * @return The bulk deletion result
-     * @throws IOException If an I/O error occurs
-     */
-    public Map<String, Object> bulkDeleteTokens(String unlockuuid, String[] tokens, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("unlockuuid", unlockuuid);
-        data.put("tokens", tokens);
-        return makeRequest("BulkDeleteTokens", data, requestMetadata);
-    }
-
-    /**
-     * Lists multiple users in bulk
-     * @param unlockuuid The unlock UUID from bulkListUnlock
-     * @param offset The offset for pagination
-     * @param limit The limit for pagination
-     * @param requestMetadata Optional request metadata
-     * @return The bulk user data
-     * @throws IOException If an I/O error occurs
-     */
     public Map<String, Object> bulkListUsers(String unlockuuid, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("unlockuuid", unlockuuid);
@@ -593,34 +579,19 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("BulkListUsers", data, requestMetadata);
     }
 
-    /**
-     * Lists multiple group users in bulk
-     * @param unlockuuid The unlock UUID from bulkListUnlock
-     * @param groupname The group name
-     * @param offset The offset for pagination
-     * @param limit The limit for pagination
-     * @param requestMetadata Optional request metadata
-     * @return The bulk group user data
-     * @throws IOException If an I/O error occurs
-     */
     public Map<String, Object> bulkListGroupUsers(String unlockuuid, String groupname, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("unlockuuid", unlockuuid);
-        data.put("groupname", groupname);
+        if (groupname.matches("\\d+")) {
+            data.put("groupid", groupname);
+        } else {
+            data.put("groupname", groupname);
+        }
         data.put("offset", offset);
         data.put("limit", limit);
         return makeRequest("BulkListGroupUsers", data, requestMetadata);
     }
 
-    /**
-     * Lists multiple user requests in bulk
-     * @param unlockuuid The unlock UUID from bulkListUnlock
-     * @param offset The offset for pagination
-     * @param limit The limit for pagination
-     * @param requestMetadata Optional request metadata
-     * @return The bulk user request data
-     * @throws IOException If an I/O error occurs
-     */
     public Map<String, Object> bulkListUserRequests(String unlockuuid, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("unlockuuid", unlockuuid);
@@ -629,15 +600,6 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("BulkListUserRequests", data, requestMetadata);
     }
 
-    /**
-     * Lists multiple audit events in bulk
-     * @param unlockuuid The unlock UUID from bulkListUnlock
-     * @param offset The offset for pagination
-     * @param limit The limit for pagination
-     * @param requestMetadata Optional request metadata
-     * @return The bulk audit event data
-     * @throws IOException If an I/O error occurs
-     */
     public Map<String, Object> bulkListAuditEvents(String unlockuuid, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("unlockuuid", unlockuuid);
@@ -646,31 +608,43 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("BulkListAuditEvents", data, requestMetadata);
     }
 
-    // UI and Configuration
+    public Map<String, Object> bulkListTokens(String unlockuuid, String[] tokens, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("unlockuuid", unlockuuid);
+        data.put("tokens", tokens);
+        return makeRequest("BulkListTokens", data, requestMetadata);
+    }
+
+    public Map<String, Object> bulkDeleteTokens(String unlockuuid, String[] tokens, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("unlockuuid", unlockuuid);
+        data.put("tokens", tokens);
+        return makeRequest("BulkDeleteTokens", data, requestMetadata);
+    }
+
+    // System Configuration
     public Map<String, Object> getUIConf() throws IOException {
-        return makeRequest("UIConfGet", null, null);
+        return makeRequest("TenantGetUIConf", null, null);
     }
 
     public Map<String, Object> getTenantConf() throws IOException {
-        return makeRequest("TenantConfGet", null, null);
+        return makeRequest("TenantGetConf", null, null);
     }
 
-    // User Reports
     public Map<String, Object> getUserHTMLReport(String mode, String identity, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("mode", mode);
         data.put("identity", identity);
-        return makeRequest("UserHTMLReportGet", data, requestMetadata);
+        return makeRequest("SystemGetUserHTMLReport", data, requestMetadata);
     }
 
     public Map<String, Object> getUserReport(String mode, String identity, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("mode", mode);
         data.put("identity", identity);
-        return makeRequest("UserReportGet", data, requestMetadata);
+        return makeRequest("SystemGetUserReport", data, requestMetadata);
     }
 
-    // Session Management
     public Map<String, Object> upsertSession(String sessionuuid, Map<String, Object> data, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> requestData = new HashMap<>();
         requestData.put("sessionuuid", sessionuuid);
@@ -690,9 +664,54 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("SessionGet", data, requestMetadata);
     }
 
-    // System Metrics
+    public Map<String, Object> getSystemStats(Map<String, Object> requestMetadata) throws IOException {
+        return makeRequest("SystemGetSystemStats", null, requestMetadata);
+    }
+
     public Map<String, Object> getSystemMetrics(Map<String, Object> requestMetadata) throws IOException {
         return makeRequest("SystemGetMetrics", null, requestMetadata);
+    }
+
+    public Map<String, Object> parsePrometheusMetrics(String metricsText) throws IOException {
+        Map<String, Object> metrics = new HashMap<>();
+        String[] lines = metricsText.split("\n");
+        
+        for (String line : lines) {
+            // Skip comments and empty lines
+            if (line.startsWith("#") || line.trim().isEmpty()) {
+                continue;
+            }
+            
+            // Parse metric line
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("^([a-zA-Z0-9_]+)(?:\\{([^}]+)\\})?\\s+([0-9.]+)$");
+            java.util.regex.Matcher matcher = pattern.matcher(line);
+            
+            if (matcher.find()) {
+                String name = matcher.group(1);
+                String labels = matcher.group(2);
+                String value = matcher.group(3);
+                
+                String metricKey = labels != null ? name + "{" + labels + "}" : name;
+                metrics.put(metricKey, Double.parseDouble(value));
+            }
+        }
+        return metrics;
+    }
+
+    public Map<String, Object> createSharedRecord(String mode, String identity, Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        if (options != null) {
+            data.putAll(options);
+        }
+        return makeRequest("SharedRecordCreate", data, requestMetadata);
+    }
+
+    public Map<String, Object> getSharedRecord(String recorduuid, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("recorduuid", recorduuid);
+        return makeRequest("SharedRecordGet", data, requestMetadata);
     }
 
     /**
