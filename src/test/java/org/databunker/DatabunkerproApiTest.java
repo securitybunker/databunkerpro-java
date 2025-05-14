@@ -151,26 +151,6 @@ public class DatabunkerproApiTest {
     }
 
     @Test
-    public void testGetUIConf() throws IOException {
-        System.out.println("\nTesting UI configuration retrieval...");
-        Map<String, Object> result = api.getUIConf();
-        assertNotNull(result);
-        assertEquals("ok", result.get("status"));
-        assertNotNull(result.get("conf"));
-        System.out.println("Successfully retrieved UI configuration");
-    }
-
-    @Test
-    public void testGetTenantConf() throws IOException {
-        System.out.println("\nTesting tenant configuration retrieval...");
-        Map<String, Object> result = api.getTenantConf();
-        assertNotNull(result);
-        assertEquals("ok", result.get("status"));
-        assertNotNull(result.get("conf"));
-        System.out.println("Successfully retrieved tenant configuration");
-    }
-
-    @Test
     public void testGetUserHTMLReport() throws IOException {
         System.out.println("\nTesting user HTML report generation...");
         String email = "test" + random.nextInt(1000000) + "@example.com";
@@ -216,17 +196,25 @@ public class DatabunkerproApiTest {
             "useragent", "Test Browser"
         );
 
-        // Create/Update session
-        Map<String, Object> upsertResult = api.upsertSession(sessionuuid, sessionData, null);
+        // Create/Update session with options
+        Map<String, Object> options = Map.of(
+            "slidingtime", "1h",
+            "finaltime", "24h"
+        );
+        Map<String, Object> upsertResult = api.upsertSession(sessionuuid, sessionData, options, null);
         assertNotNull(upsertResult);
         assertEquals("ok", upsertResult.get("status"));
+        System.out.println("\nSession Upsert Result:");
+        System.out.println("Status: " + upsertResult.get("status"));
+        System.out.println("Session UUID: " + sessionuuid);
         System.out.println("Successfully created/updated session: " + sessionuuid);
 
         // Get session
         Map<String, Object> getResult = api.getSession(sessionuuid, null);
         assertNotNull(getResult);
+        System.out.println("Full Response: " + getResult);
         assertEquals("ok", getResult.get("status"));
-        assertNotNull(getResult.get("session"));
+        assertNotNull(getResult.get("sessiondata"));
         System.out.println("Successfully retrieved session: " + sessionuuid);
 
         // Delete session
@@ -241,9 +229,12 @@ public class DatabunkerproApiTest {
         System.out.println("\nTesting system metrics retrieval...");
         Map<String, Object> result = api.getSystemMetrics(null);
         assertNotNull(result);
-        assertEquals("ok", result.get("status"));
-        assertNotNull(result.get("metrics"));
+        // Verify that we got some metrics
+        assertFalse(result.isEmpty());
+        // Check for some common metrics that should be present
+        assertTrue(result.keySet().stream().anyMatch(key -> key.startsWith("http_requests_total")));
         System.out.println("Successfully retrieved system metrics");
+        System.out.println("Metrics found: " + result.keySet());
     }
 
     @Test

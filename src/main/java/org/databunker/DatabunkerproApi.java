@@ -8,6 +8,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.http.client.methods.HttpGet;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -645,10 +646,18 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("SystemGetUserReport", data, requestMetadata);
     }
 
-    public Map<String, Object> upsertSession(String sessionuuid, Map<String, Object> data, Map<String, Object> requestMetadata) throws IOException {
+    public Map<String, Object> upsertSession(String sessionuuid, Map<String, Object> data, Map<String, Object> options, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> requestData = new HashMap<>();
         requestData.put("sessionuuid", sessionuuid);
-        requestData.putAll(data);
+        requestData.put("sessiondata", data);
+        if (options != null) {
+            if (options.containsKey("slidingtime")) {
+                requestData.put("slidingtime", options.get("slidingtime"));
+            }
+            if (options.containsKey("finaltime")) {
+                requestData.put("finaltime", options.get("finaltime"));
+            }
+        }
         return makeRequest("SessionUpsert", requestData, requestMetadata);
     }
 
@@ -669,7 +678,22 @@ public class DatabunkerproApi implements AutoCloseable {
     }
 
     public Map<String, Object> getSystemMetrics(Map<String, Object> requestMetadata) throws IOException {
-        return makeRequest("SystemGetMetrics", null, requestMetadata);
+        String url = baseURL + "/metrics";
+        HttpGet request = new HttpGet(url);
+
+        // Set headers
+        if (xBunkerToken != null && !xBunkerToken.isEmpty()) {
+            request.setHeader("X-Bunker-Token", xBunkerToken);
+        }
+        if (xBunkerTenant != null && !xBunkerTenant.isEmpty()) {
+            request.setHeader("X-Bunker-Tenant", xBunkerTenant);
+        }
+
+        try (CloseableHttpResponse response = httpClient.execute(request)) {
+            HttpEntity entity = response.getEntity();
+            String metricsText = EntityUtils.toString(entity);
+            return parsePrometheusMetrics(metricsText);
+        }
     }
 
     public Map<String, Object> parsePrometheusMetrics(String metricsText) throws IOException {
