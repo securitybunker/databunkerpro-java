@@ -1,4 +1,4 @@
-name: Java CI with Maven
+name: Build java API
 
 on:
   push:
@@ -6,6 +6,18 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      run_tests:
+        description: 'Run tests'
+        required: true
+        default: true
+        type: boolean
+      run_deploy:
+        description: 'Deploy to GitHub Packages'
+        required: true
+        default: false
+        type: boolean
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,10 +36,11 @@ jobs:
       run: mvn -B clean package --file pom.xml
       
     - name: Run Tests
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_tests || github.event_name != 'workflow_dispatch' }}
       run: mvn -B test --file pom.xml
       
     - name: Publish to GitHub Packages
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.run_deploy) }}
       run: mvn deploy -DskipTests
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
