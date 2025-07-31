@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Utility class to convert option objects to Map<String, Object> for backward compatibility
+ * Utility class to convert option objects to Map&lt;String, Object&gt; for backward compatibility
  */
 public class OptionsConverter {
     
     /**
-     * Converts BasicOptions to Map<String, Object>
+     * Converts BasicOptions to Map&lt;String, Object&gt;
      * @param options The BasicOptions object
      * @return A Map representation of the options
      */
@@ -27,7 +27,7 @@ public class OptionsConverter {
     }
     
     /**
-     * Converts UserOptions to Map<String, Object>
+     * Converts UserOptions to Map&lt;String, Object&gt;
      * @param options The UserOptions object
      * @return A Map representation of the options
      */
@@ -57,7 +57,7 @@ public class OptionsConverter {
     }
     
     /**
-     * Converts SharedRecordOptions to Map<String, Object>
+     * Converts SharedRecordOptions to Map&lt;String, Object&gt;
      * @param options The SharedRecordOptions object
      * @return A Map representation of the options
      */
@@ -81,7 +81,7 @@ public class OptionsConverter {
     }
 
     /**
-     * Converts LegalBasisOptions to Map<String, Object>
+     * Converts LegalBasisOptions to Map&lt;String, Object&gt;
      * @param options The LegalBasisOptions object
      * @return A Map representation of the options
      */
@@ -116,10 +116,8 @@ public class OptionsConverter {
         return map;
     }
 
-
-
     /**
-     * Converts AgreementAcceptOptions to Map<String, Object>
+     * Converts AgreementAcceptOptions to Map&lt;String, Object&gt;
      * @param options The AgreementAcceptOptions object
      * @return A Map representation of the options
      */
@@ -149,7 +147,7 @@ public class OptionsConverter {
     }
 
     /**
-     * Converts ConnectorOptions to Map<String, Object>
+     * Converts ConnectorOptions to Map&lt;String, Object&gt;
      * @param options The ConnectorOptions object
      * @return A Map representation of the options
      */
@@ -194,7 +192,7 @@ public class OptionsConverter {
     }
 
     /**
-     * Converts TenantOptions to Map<String, Object>
+     * Converts TenantOptions to Map&lt;String, Object&gt;
      * @param options The TenantOptions object
      * @return A Map representation of the options
      */
@@ -215,7 +213,7 @@ public class OptionsConverter {
     }
 
     /**
-     * Converts ProcessingActivityOptions to Map<String, Object>
+     * Converts ProcessingActivityOptions to Map&lt;String, Object&gt;
      * @param options The ProcessingActivityOptions object
      * @return A Map representation of the options
      */
@@ -241,10 +239,8 @@ public class OptionsConverter {
         return map;
     }
 
-
-
     /**
-     * Converts GroupOptions to Map<String, Object>
+     * Converts GroupOptions to Map&lt;String, Object&gt;
      * @param options The GroupOptions object
      * @return A Map representation of the options
      */
@@ -265,7 +261,7 @@ public class OptionsConverter {
     }
 
     /**
-     * Converts RoleOptions to Map<String, Object>
+     * Converts RoleOptions to Map&lt;String, Object&gt;
      * @param options The RoleOptions object
      * @return A Map representation of the options
      */
@@ -283,7 +279,7 @@ public class OptionsConverter {
     }
 
     /**
-     * Converts TokenOptions to Map<String, Object>
+     * Converts TokenOptions to Map&lt;String, Object&gt;
      * @param options The TokenOptions object
      * @return A Map representation of the options
      */
@@ -304,7 +300,7 @@ public class OptionsConverter {
     }
 
     /**
-     * Converts PolicyOptions to Map<String, Object>
+     * Converts PolicyOptions to Map&lt;String, Object&gt;
      * @param options The PolicyOptions object
      * @return A Map representation of the options
      */
