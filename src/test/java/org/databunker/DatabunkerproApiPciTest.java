@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.databunker.options.TokenOptions;
 
 import static org.junit.Assert.*;
 
@@ -80,10 +81,11 @@ public class DatabunkerproApiPciTest {
 
         // Step 1: Tokenize a credit card number
         String creditCardNumber = "5467047429390590";
-        Map<String, Object> options = new HashMap<>();
-        options.put("slidingtime", "1d");
-        options.put("finaltime", "12m");
-        options.put("unique", true);
+        TokenOptions options = new TokenOptions.Builder()
+            .slidingtime("1d")
+            .finaltime("12m")
+            .unique(true)
+            .build();
         
         Map<String, Object> tokenResult = api.createToken("creditcard", creditCardNumber, options, null);
         assertNotNull(tokenResult);
@@ -160,10 +162,11 @@ public class DatabunkerproApiPciTest {
             records[i] = record;
         }
 
-        Map<String, Object> options = new HashMap<>();
-        options.put("slidingtime", "30d");
-        options.put("finaltime", "12m");
-        options.put("unique", true);
+        TokenOptions options = new TokenOptions.Builder()
+            .slidingtime("30d")
+            .finaltime("12m")
+            .unique(true)
+            .build();
 
         Map<String, Object> bulkTokens = api.createTokensBulk(records, options, null);
         System.out.println("Bulk tokens: " + bulkTokens);
@@ -244,7 +247,7 @@ public class DatabunkerproApiPciTest {
 
         try {
             // Test with empty records array
-            Map<String, Object> emptyRecordsResponse = api.createTokensBulk(new Map[0], options, null);
+            Map<String, Object> emptyRecordsResponse = api.createTokensBulk(new Map[0], (TokenOptions) null, null);
             if (emptyRecordsResponse != null) {
                 assertEquals("error", emptyRecordsResponse.get("status"));
                 assertNotNull(emptyRecordsResponse.get("message"));

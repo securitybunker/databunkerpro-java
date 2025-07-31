@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -18,6 +16,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import org.databunker.options.BasicOptions;
+import org.databunker.options.SharedRecordOptions;
 
 import static org.junit.Assert.*;
 
@@ -198,10 +198,10 @@ public class DatabunkerproApiTest {
         );
 
         // Create/Update session with options
-        Map<String, Object> options = Map.of(
-            "slidingtime", "1h",
-            "finaltime", "24h"
-        );
+        BasicOptions options = new BasicOptions.Builder()
+            .slidingtime("1h")
+            .finaltime("24h")
+            .build();
         Map<String, Object> upsertResult = api.upsertSession(sessionuuid, sessionData, options, null);
         assertNotNull(upsertResult);
         assertEquals("ok", upsertResult.get("status"));
@@ -268,11 +268,11 @@ public class DatabunkerproApiTest {
         api.createUser(userData, null, null);
 
         // Create shared record
-        Map<String, Object> options = Map.of(
-            "fields", "name,email",
-            "partner", "test-partner",
-            "finaltime", "1d"
-        );
+        SharedRecordOptions options = new SharedRecordOptions.Builder()
+            .fields("name,email")
+            .partner("test-partner")
+            .finaltime("1d")
+            .build();
         Map<String, Object> createResult = api.createSharedRecord("email", email, options, null);
         assertNotNull(createResult);
         assertEquals("ok", createResult.get("status"));
