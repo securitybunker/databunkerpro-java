@@ -50,6 +50,31 @@
         </dependency>
     </dependencies>
 
+
+
+    <scm>
+        <connection>scm:git:git://github.com/securitybunker/databunkerpro-java.git</connection>
+        <developerConnection>scm:git:ssh://github.com/securitybunker/databunkerpro-java.git</developerConnection>
+        <url>https://github.com/securitybunker/databunkerpro-java</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Databunket team</name>
+            <email>hello@databunker.org</email>
+            <organization>Databunker.org</organization>
+            <organizationUrl>https://databunker.org/</organizationUrl>
+        </developer>
+    </developers>
+
     <build>
         <plugins>
             <plugin>
@@ -87,37 +112,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
-
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/securitybunker/databunkerpro-java</url>
-        </repository>
-    </distributionManagement>
-
-    <scm>
-        <connection>scm:git:git://github.com/securitybunker/databunkerpro-java.git</connection>
-        <developerConnection>scm:git:ssh://github.com/securitybunker/databunkerpro-java.git</developerConnection>
-        <url>https://github.com/securitybunker/databunkerpro-java</url>
-    </scm>
-
-    <licenses>
-        <license>
-            <name>MIT License</name>
-            <url>https://opensource.org/licenses/MIT</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <name>Databunket team</name>
-            <email>hello@databunker.org</email>
-            <organization>Databunker.org</organization>
-            <organizationUrl>https://databunker.org/</organizationUrl>
-        </developer>
-    </developers>
 </project> 

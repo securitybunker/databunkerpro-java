@@ -27,7 +27,39 @@ A Java client library for interacting with the DatabunkerPro API. DatabunkerPro 
 
 ## Installation
 
-Add the following dependency to your `pom.xml`:
+### From JitPack (Recommended)
+
+Add the JitPack repository and dependency to your `pom.xml`:
+
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<dependency>
+    <groupId>com.github.securitybunker</groupId>
+    <artifactId>databunkerpro-java</artifactId>
+    <version>v1.0.0</version>
+</dependency>
+```
+
+**Note**: Replace `v1.0.0` with your desired version tag (e.g., `v1.0.1`, `v2.0.0`, etc.)
+
+### From Local Maven Repository
+
+For development or internal use:
+
+```bash
+# Clone and install locally
+git clone https://github.com/securitybunker/databunkerpro-java.git
+cd databunkerpro-java
+mvn clean install
+```
+
+Then add the dependency to your `pom.xml`:
 
 ```xml
 <dependency>
@@ -107,6 +139,33 @@ To run the tests use the following command:
 ```bash
 mvn test
 ```
+
+## Deployment
+
+This project uses **JitPack** for automatic deployment. JitPack automatically builds and publishes your GitHub repository as a Maven dependency.
+
+### How to Release a New Version
+
+1. **Create a Git tag** for your release:
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
+2. **JitPack automatically builds** and publishes the package
+
+3. **Users can then install** using the version tag:
+   ```xml
+   <dependency>
+       <groupId>com.github.securitybunker</groupId>
+       <artifactId>databunkerpro-java</artifactId>
+       <version>v1.0.0</version>
+   </dependency>
+   ```
+
+### View Build Status
+
+Check your build status at: https://jitpack.io/#securitybunker/databunkerpro-java
 
 ## Contributing
 
