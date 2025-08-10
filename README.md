@@ -5,20 +5,24 @@ A Java client library for interacting with the DatabunkerPro API. DatabunkerPro 
 ## Features
 
 - Complete implementation of the DatabunkerPro API
-- User management (create, get, update, delete)
+- User management (create, get, update, delete, patch)
 - App data management
 - Legal basis and agreement management
 - Connector management
 - Group and role management
 - Policy management
-- Token management
+- Token management (including bulk operations)
 - Audit management
 - Tenant management
 - Session management
-- System configuration
+- System configuration and metrics
 - Bulk operations
+- Shared record management
+- Wrapping key generation for Shamir's Secret Sharing
+- Typed options classes for better type safety
 - Thread-safe implementation
 - Comprehensive test suite
+- Enhanced error handling
 
 ## Requirements
 
@@ -89,6 +93,24 @@ Then add the dependency to your `pom.xml`:
 </dependency>
 ```
 
+## New Features in Latest Version
+
+### Enhanced API Methods
+- **Wrapping Key Generation**: Generate wrapping keys from Shamir's Secret Sharing keys
+- **Typed Patch Operations**: Use structured `PatchOperation` objects for user updates
+- **Bulk Token Operations**: Create multiple tokens efficiently with typed options
+- **Shared Record Management**: Create and retrieve shared records with partner organizations
+
+### Improved Error Handling
+- Better HTTP status code handling
+- Enhanced error messages and logging
+- Graceful handling of API errors
+
+### Type Safety Improvements
+- Structured patch operations with `PatchOperation` class
+- Builder pattern for complex options
+- Enhanced error handling
+
 ## Usage
 
 ### Basic Setup
@@ -129,7 +151,13 @@ api.updateUser("email", "user@example.com", updates, null);
 
 // Delete a user
 api.deleteUser("email", "user@example.com", null);
-```
+
+// Patch a user with typed operations
+PatchOperation[] patchOps = {
+    new PatchOperation("replace", "/profile/name", "Jane Doe"),
+    new PatchOperation("add", "/profile/age", 25)
+};
+Map<String, Object> patchResult = api.patchUser("email", "user@example.com", patchOps, null);
 
 ### App Data Management
 
@@ -149,6 +177,53 @@ Map<String, Object> appData = api.getAppData("email", "user@example.com", "appna
 // Get system statistics
 Map<String, Object> stats = api.getSystemStats(null);
 System.out.println("System statistics: " + stats.get("stats"));
+
+// Generate wrapping key from Shamir's Secret Sharing keys
+Map<String, Object> wrappingKey = api.generateWrappingKey("key1", "key2", "key3", null);
+System.out.println("Generated wrapping key: " + wrappingKey.get("wrappingkey"));
+
+// Get system metrics
+Map<String, Object> metrics = api.getSystemMetrics(null);
+System.out.println("System metrics: " + metrics);
+```
+
+### Token Management
+
+```java
+// Create a single token
+TokenOptions tokenOptions = TokenOptions.builder()
+    .slidingtime("1d")
+    .finaltime("10d")
+    .unique(true)
+    .build();
+Map<String, Object> token = api.createToken("creditcard", "1234567890", tokenOptions, null);
+
+// Create multiple tokens in bulk
+Map<String, Object>[] tokenRecords = new Map[2];
+tokenRecords[0] = new HashMap<>();
+tokenRecords[0].put("tokentype", "creditcard");
+tokenRecords[0].put("record", "1234567890");
+tokenRecords[1] = new HashMap<>();
+tokenRecords[1].put("tokentype", "email");
+tokenRecords[1].put("record", "user@example.com");
+
+Map<String, Object> bulkTokens = api.createTokensBulk(tokenRecords, tokenOptions, null);
+```
+
+### Shared Record Management
+
+```java
+// Create a shared record
+SharedRecordOptions sharedOptions = SharedRecordOptions.builder()
+    .fields("name,email")
+    .partner("partner-org")
+    .appname("myapp")
+    .finaltime("100d")
+    .build();
+Map<String, Object> sharedRecord = api.createSharedRecord("email", "user@example.com", sharedOptions, null);
+
+// Get a shared record
+Map<String, Object> retrievedRecord = api.getSharedRecord("record-uuid", null);
 ```
 
 

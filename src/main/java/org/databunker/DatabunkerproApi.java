@@ -23,6 +23,7 @@ import org.databunker.options.GroupOptions;
 import org.databunker.options.RoleOptions;
 import org.databunker.options.TokenOptions;
 import org.databunker.options.PolicyOptions;
+import org.databunker.options.PatchOperation;
 import org.databunker.options.OptionsConverter;
 
 import java.io.IOException;
@@ -89,7 +90,21 @@ public class DatabunkerproApi implements AutoCloseable {
         try (CloseableHttpResponse response = httpClient.execute(request)) {
             HttpEntity entity = response.getEntity();
             String responseString = EntityUtils.toString(entity);
-            return objectMapper.readValue(responseString, Map.class);
+            Map<String, Object> result = objectMapper.readValue(responseString, Map.class);
+
+            if (response.getStatusLine().getStatusCode() < 200 || response.getStatusLine().getStatusCode() >= 300) {
+                if (result.containsKey("status")) {
+                    return result;
+                } else {
+                    throw new IOException(result.containsKey("message") ? 
+                        (String) result.get("message") : "API request failed");
+                }
+            }
+
+            return result;
+        } catch (Exception error) {
+            System.err.println("Error making request: " + error.getMessage());
+            throw new IOException("API request failed", error);
         }
     }
 
@@ -125,6 +140,9 @@ public class DatabunkerproApi implements AutoCloseable {
         try (CloseableHttpResponse response = httpClient.execute(request)) {
             HttpEntity entity = response.getEntity();
             return EntityUtils.toByteArray(entity);
+        } catch (Exception error) {
+            System.err.println("Error making raw request: " + error.getMessage());
+            throw new IOException("Raw API request failed", error);
         }
     }
 
@@ -217,6 +235,24 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("UserPatch", data, requestMetadata);
     }
 
+    /**
+     * Patches a user with typed patch operations
+     *
+     * @param mode            User identification mode
+     * @param identity        User's identifier
+     * @param patch           Array of patch operations
+     * @param requestMetadata Optional request metadata
+     * @return The patched user information
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> patchUser(String mode, String identity, PatchOperation[] patch, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("patch", patch);
+        return makeRequest("UserPatch", data, requestMetadata);
+    }
+
     public Map<String, Object> requestUserUpdate(String mode, String identity, Map<String, Object> profile, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("mode", mode);
@@ -226,6 +262,24 @@ public class DatabunkerproApi implements AutoCloseable {
     }
 
     public Map<String, Object> requestUserPatch(String mode, String identity, Map<String, Object>[] patch, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("patch", patch);
+        return makeRequest("UserPatchRequest", data, requestMetadata);
+    }
+
+    /**
+     * Requests a user patch with typed patch operations
+     *
+     * @param mode            User identification mode
+     * @param identity        User's identifier
+     * @param patch           Array of patch operations
+     * @param requestMetadata Optional request metadata
+     * @return The patch request result
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> requestUserPatch(String mode, String identity, PatchOperation[] patch, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("mode", mode);
         data.put("identity", identity);
@@ -485,6 +539,8 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("LegalBasisUpdate", data, requestMetadata);
     }
 
+
+
     public Map<String, Object> deleteLegalBasis(String brief, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("brief", brief);
@@ -615,6 +671,8 @@ public class DatabunkerproApi implements AutoCloseable {
         }
         return makeRequest("ProcessingActivityUpdate", data, requestMetadata);
     }
+
+
 
     public Map<String, Object> deleteProcessingActivity(String activity, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
@@ -940,7 +998,7 @@ public class DatabunkerproApi implements AutoCloseable {
      * @return The created tokens information
      * @throws IOException If an I/O error occurs
      */
-    public Map<String, Object> createTokensBulk(Map<String, String>[] records, TokenOptions options, Map<String, Object> requestMetadata) throws IOException {
+    public Map<String, Object> createTokensBulk(Map<String, Object>[] records, TokenOptions options, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("records", records);
         if (options != null) {
@@ -957,7 +1015,7 @@ public class DatabunkerproApi implements AutoCloseable {
      * @return The created tokens information
      * @throws IOException If an I/O error occurs
      */
-    public Map<String, Object> createTokensBulk(Map<String, String>[] records, Map<String, Object> requestMetadata) throws IOException {
+    public Map<String, Object> createTokensBulk(Map<String, Object>[] records, Map<String, Object> requestMetadata) throws IOException {
         return createTokensBulk(records, null, requestMetadata);
     }
 
@@ -1151,6 +1209,8 @@ public class DatabunkerproApi implements AutoCloseable {
         }
         return makeRequest("PolicyUpdate", data, requestMetadata);
     }
+
+
 
     public Map<String, Object> getPolicy(String policyref, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
@@ -1351,6 +1411,24 @@ public class DatabunkerproApi implements AutoCloseable {
 
     public Map<String, Object> getSystemStats(Map<String, Object> requestMetadata) throws IOException {
         return makeRequest("SystemGetSystemStats", null, requestMetadata);
+    }
+
+    /**
+     * Generates a wrapping key from three Shamir's Secret Sharing keys
+     *
+     * @param key1            First Shamir secret sharing key
+     * @param key2            Second Shamir secret sharing key
+     * @param key3            Third Shamir secret sharing key
+     * @param requestMetadata Optional request metadata
+     * @return Generated wrapping key
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> generateWrappingKey(String key1, String key2, String key3, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("key1", key1);
+        data.put("key2", key2);
+        data.put("key3", key3);
+        return makeRequest("SystemGenerateWrappingKey", data, requestMetadata);
     }
 
     public Map<String, Object> getSystemMetrics(Map<String, Object> requestMetadata) throws IOException {
