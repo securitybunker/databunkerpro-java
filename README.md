@@ -27,7 +27,27 @@ A Java client library for interacting with the DatabunkerPro API. DatabunkerPro 
 
 ## Installation
 
-### From JitPack (Recommended)
+### From GitHub Packages
+
+Add the repository and dependency to your `pom.xml`:
+
+```xml
+<repositories>
+    <repository>
+        <id>github</id>
+        <name>GitHub Packages</name>
+        <url>https://maven.pkg.github.com/securitybunker/databunkerpro-java</url>
+    </repository>
+</repositories>
+
+<dependency>
+    <groupId>org.databunker</groupId>
+    <artifactId>databunkerpro-java</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+### From JitPack (Alternative)
 
 Add the JitPack repository and dependency to your `pom.xml`:
 
@@ -142,9 +162,25 @@ mvn test
 
 ## Deployment
 
-This project uses **JitPack** for automatic deployment. JitPack automatically builds and publishes your GitHub repository as a Maven dependency.
+The project supports deployment to both GitHub Packages and JitPack.
 
-### How to Release a New Version
+### GitHub Packages Deployment
+
+The project includes a GitHub Actions workflow that automatically:
+- Builds the project on push to main branch
+- Runs tests
+- Deploys to GitHub Packages when triggered
+
+To deploy:
+1. Go to Actions tab in your GitHub repository
+2. Select "Build java API" workflow
+3. Click "Run workflow"
+4. Set "Deploy to GitHub Packages" to true
+5. Click "Run workflow"
+
+### JitPack Deployment (Alternative)
+
+JitPack automatically builds and publishes your GitHub repository as a Maven dependency.
 
 1. **Create a Git tag** for your release:
    ```bash
@@ -154,18 +190,7 @@ This project uses **JitPack** for automatic deployment. JitPack automatically bu
 
 2. **JitPack automatically builds** and publishes the package
 
-3. **Users can then install** using the version tag:
-   ```xml
-   <dependency>
-       <groupId>com.github.securitybunker</groupId>
-       <artifactId>databunkerpro-java</artifactId>
-       <version>v1.0.0</version>
-   </dependency>
-   ```
-
-### View Build Status
-
-Check your build status at: https://jitpack.io/#securitybunker/databunkerpro-java
+3. **Check build status** at: https://jitpack.io/#securitybunker/databunkerpro-java
 
 ## Contributing
 
