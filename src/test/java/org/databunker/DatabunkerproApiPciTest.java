@@ -154,9 +154,9 @@ public class DatabunkerproApiPciTest {
         };
 
         @SuppressWarnings("unchecked")
-        Map<String, String>[] records = new Map[creditCards.length];
+        Map<String, Object>[] records = new Map[creditCards.length];
         for (int i = 0; i < creditCards.length; i++) {
-            Map<String, String> record = new HashMap<>();
+            Map<String, Object> record = new HashMap<>();
             record.put("tokentype", "creditcard");
             record.put("record", creditCards[i]);
             records[i] = record;
