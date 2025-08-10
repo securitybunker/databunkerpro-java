@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 
+          http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+  <!-- Server credentials for GitHub Packages -->
+  <servers>
+    <!-- GitHub Packages -->
+    <server>
+      <id>github</id>
+      <username>your-github-username</username>
+      <password>your-github-token</password>
+    </server>
+  </servers>
+
+  <!-- Profiles for different environments -->
+  <profiles>
+    <!-- GitHub Packages Profile -->
+    <profile>
+      <id>github</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <repositories>
+        <repository>
+          <id>github</id>
+          <name>GitHub Packages</name>
+          <url>https://maven.pkg.github.com/securitybunker/databunkerpro-java</url>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+
+  <!-- Active profiles -->
+  <activeProfiles>
+    <activeProfile>github</activeProfile>
+  </activeProfiles>
+
+</settings>
