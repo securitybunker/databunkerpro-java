@@ -301,6 +301,54 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("UserDeleteRequest", data, requestMetadata);
     }
 
+    /**
+     * Deletes multiple users in bulk
+     *
+     * @param users           Array of user identifiers to delete
+     * @param requestMetadata Optional request metadata
+     * @return The bulk deletion result
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> deleteUsersBulk(Map<String, Object>[] users, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("users", users);
+        return makeRequest("UserDeleteBulk", data, requestMetadata);
+    }
+
+    /**
+     * Searches for users using fuzzy matching
+     *
+     * @param mode            User identification mode
+     * @param identity        User identifier to search for
+     * @param unlockuuid      UUID from bulk list unlock for search authorization
+     * @param requestMetadata Optional request metadata
+     * @return The search results
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> searchUsers(String mode, String identity, String unlockuuid, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("unlockuuid", unlockuuid);
+        return makeRequest("UserSearch", data, requestMetadata);
+    }
+
+    /**
+     * Lists all versions of a user's profile
+     *
+     * @param mode            User identification mode
+     * @param identity        User identifier
+     * @param requestMetadata Optional request metadata
+     * @return List of user versions
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> listUserVersions(String mode, String identity, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        return makeRequest("UserListVersions", data, requestMetadata);
+    }
+
     // User Authentication
     public Map<String, Object> preloginUser(String mode, String identity, String code, String captchacode, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
@@ -475,6 +523,28 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("AppdataGet", data, requestMetadata);
     }
 
+    /**
+     * Gets app data with version support
+     *
+     * @param mode            User identification mode
+     * @param identity        User identifier
+     * @param appname         Application name
+     * @param version         Specific version of the app data to retrieve
+     * @param requestMetadata Optional request metadata
+     * @return App data
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> getAppData(String mode, String identity, String appname, Integer version, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("appname", appname);
+        if (version != null) {
+            data.put("version", version);
+        }
+        return makeRequest("AppdataGet", data, requestMetadata);
+    }
+
     public Map<String, Object> updateAppData(String mode, String identity, String appname, Map<String, Object> appdata, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> requestData = new HashMap<>();
         requestData.put("mode", mode);
@@ -504,6 +574,42 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("AppdataListAppNames", null, requestMetadata);
     }
 
+    /**
+     * Deletes app data for a user
+     *
+     * @param mode            User identification mode
+     * @param identity        User identifier
+     * @param appname         Application name
+     * @param requestMetadata Optional request metadata
+     * @return Deletion result
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> deleteAppData(String mode, String identity, String appname, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("appname", appname);
+        return makeRequest("AppdataDelete", data, requestMetadata);
+    }
+
+    /**
+     * Lists all versions of app data for a user
+     *
+     * @param mode            User identification mode
+     * @param identity        User identifier
+     * @param appname         Application name
+     * @param requestMetadata Optional request metadata
+     * @return List of app data versions
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> listAppDataVersions(String mode, String identity, String appname, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("appname", appname);
+        return makeRequest("AppdataListVersions", data, requestMetadata);
+    }
+
     // Legal Basis Management
     /**
      * Creates a legal basis with typed options
@@ -525,14 +631,16 @@ public class DatabunkerproApi implements AutoCloseable {
      * Updates a legal basis with typed options
      *
      * @param brief           Brief identifier of the legal basis
+     * @param newbrief        New brief identifier for the legal basis
      * @param options         Typed options for legal basis update (can be null)
      * @param requestMetadata Optional request metadata
      * @return The updated legal basis information
      * @throws IOException If an I/O error occurs
      */
-    public Map<String, Object> updateLegalBasis(String brief, LegalBasisOptions options, Map<String, Object> requestMetadata) throws IOException {
+    public Map<String, Object> updateLegalBasis(String brief, String newbrief, LegalBasisOptions options, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("brief", brief);
+        data.put("newbrief", newbrief);
         if (options != null) {
             data.putAll(OptionsConverter.toMap(options));
         }
@@ -658,14 +766,16 @@ public class DatabunkerproApi implements AutoCloseable {
      * Updates a processing activity with typed options
      *
      * @param activity        Activity identifier
+     * @param newactivity     New activity identifier
      * @param options         Typed options for processing activity update
      * @param requestMetadata Optional request metadata
      * @return The updated processing activity information
      * @throws IOException If an I/O error occurs
      */
-    public Map<String, Object> updateProcessingActivity(String activity, ProcessingActivityOptions options, Map<String, Object> requestMetadata) throws IOException {
+    public Map<String, Object> updateProcessingActivity(String activity, String newactivity, ProcessingActivityOptions options, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("activity", activity);
+        data.put("newactivity", newactivity);
         if (options != null) {
             data.putAll(OptionsConverter.toMap(options));
         }
@@ -699,22 +809,8 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("ConnectorListSupportedConnectors", null, requestMetadata);
     }
 
-    public Map<String, Object> listConnectors(int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("offset", offset);
-        data.put("limit", limit);
-        return makeRequest("ConnectorListConnectors", data, requestMetadata);
-    }
-
-    /**
-     * Lists connectors with default offset and limit
-     *
-     * @param requestMetadata Optional request metadata
-     * @return List of connectors
-     * @throws IOException If an I/O error occurs
-     */
     public Map<String, Object> listConnectors(Map<String, Object> requestMetadata) throws IOException {
-        return listConnectors(0, 10, requestMetadata);
+        return makeRequest("ConnectorListConnectors", null, requestMetadata);
     }
 
     /**
@@ -1233,24 +1329,67 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("BulkListUnlock", null, requestMetadata);
     }
 
-    public Map<String, Object> bulkListUsers(String unlockuuid, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
+    /**
+     * Lists specific users in bulk using search criteria
+     *
+     * @param unlockuuid      UUID from bulk list unlock
+     * @param users           Array of user search criteria
+     * @param offset          Offset for pagination
+     * @param limit           Limit for pagination
+     * @param requestMetadata Optional request metadata
+     * @return List of users
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> bulkListUsers(String unlockuuid, Map<String, Object>[] users, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("unlockuuid", unlockuuid);
+        data.put("users", users);
         data.put("offset", offset);
         data.put("limit", limit);
         return makeRequest("BulkListUsers", data, requestMetadata);
     }
 
     /**
-     * Lists users in bulk with default offset and limit
+     * Lists specific users in bulk with default offset and limit
      *
-     * @param unlockuuid      UUID for the bulk unlock operation
+     * @param unlockuuid      UUID from bulk list unlock
+     * @param users           Array of user search criteria
      * @param requestMetadata Optional request metadata
      * @return List of users
      * @throws IOException If an I/O error occurs
      */
-    public Map<String, Object> bulkListUsers(String unlockuuid, Map<String, Object> requestMetadata) throws IOException {
-        return bulkListUsers(unlockuuid, 0, 10, requestMetadata);
+    public Map<String, Object> bulkListUsers(String unlockuuid, Map<String, Object>[] users, Map<String, Object> requestMetadata) throws IOException {
+        return bulkListUsers(unlockuuid, users, 0, 10, requestMetadata);
+    }
+
+    /**
+     * Lists all users in bulk
+     *
+     * @param unlockuuid      UUID from bulk list unlock
+     * @param offset          Offset for pagination
+     * @param limit           Limit for pagination
+     * @param requestMetadata Optional request metadata
+     * @return List of all users
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> bulkListAllUsers(String unlockuuid, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("unlockuuid", unlockuuid);
+        data.put("offset", offset);
+        data.put("limit", limit);
+        return makeRequest("BulkListAllUsers", data, requestMetadata);
+    }
+
+    /**
+     * Lists all users in bulk with default offset and limit
+     *
+     * @param unlockuuid      UUID from bulk list unlock
+     * @param requestMetadata Optional request metadata
+     * @return List of all users
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> bulkListAllUsers(String unlockuuid, Map<String, Object> requestMetadata) throws IOException {
+        return bulkListAllUsers(unlockuuid, 0, 10, requestMetadata);
     }
 
     public Map<String, Object> bulkListGroupUsers(String unlockuuid, String groupref, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
@@ -1279,44 +1418,64 @@ public class DatabunkerproApi implements AutoCloseable {
         return bulkListGroupUsers(unlockuuid, groupref, 0, 10, requestMetadata);
     }
 
-    public Map<String, Object> bulkListUserRequests(String unlockuuid, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("unlockuuid", unlockuuid);
-        data.put("offset", offset);
-        data.put("limit", limit);
-        return makeRequest("BulkListUserRequests", data, requestMetadata);
-    }
-
     /**
-     * Lists user requests in bulk with default offset and limit
+     * Lists all user requests in bulk
      *
-     * @param unlockuuid      UUID for the bulk unlock operation
+     * @param unlockuuid      UUID from bulk list unlock
+     * @param offset          Offset for pagination
+     * @param limit           Limit for pagination
      * @param requestMetadata Optional request metadata
      * @return List of user requests
      * @throws IOException If an I/O error occurs
      */
-    public Map<String, Object> bulkListUserRequests(String unlockuuid, Map<String, Object> requestMetadata) throws IOException {
-        return bulkListUserRequests(unlockuuid, 0, 10, requestMetadata);
-    }
-
-    public Map<String, Object> bulkListAuditEvents(String unlockuuid, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
+    public Map<String, Object> bulkListAllUserRequests(String unlockuuid, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("unlockuuid", unlockuuid);
         data.put("offset", offset);
         data.put("limit", limit);
-        return makeRequest("BulkListAuditEvents", data, requestMetadata);
+        return makeRequest("BulkListAllUserRequests", data, requestMetadata);
     }
 
     /**
-     * Lists audit events in bulk with default offset and limit
+     * Lists all user requests in bulk with default offset and limit
      *
-     * @param unlockuuid      UUID for the bulk unlock operation
+     * @param unlockuuid      UUID from bulk list unlock
+     * @param requestMetadata Optional request metadata
+     * @return List of user requests
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> bulkListAllUserRequests(String unlockuuid, Map<String, Object> requestMetadata) throws IOException {
+        return bulkListAllUserRequests(unlockuuid, 0, 10, requestMetadata);
+    }
+
+    /**
+     * Lists all audit events in bulk
+     *
+     * @param unlockuuid      UUID from bulk list unlock
+     * @param offset          Offset for pagination
+     * @param limit           Limit for pagination
      * @param requestMetadata Optional request metadata
      * @return List of audit events
      * @throws IOException If an I/O error occurs
      */
-    public Map<String, Object> bulkListAuditEvents(String unlockuuid, Map<String, Object> requestMetadata) throws IOException {
-        return bulkListAuditEvents(unlockuuid, 0, 10, requestMetadata);
+    public Map<String, Object> bulkListAllAuditEvents(String unlockuuid, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("unlockuuid", unlockuuid);
+        data.put("offset", offset);
+        data.put("limit", limit);
+        return makeRequest("BulkListAllAuditEvents", data, requestMetadata);
+    }
+
+    /**
+     * Lists all audit events in bulk with default offset and limit
+     *
+     * @param unlockuuid      UUID from bulk list unlock
+     * @param requestMetadata Optional request metadata
+     * @return List of audit events
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> bulkListAllAuditEvents(String unlockuuid, Map<String, Object> requestMetadata) throws IOException {
+        return bulkListAllAuditEvents(unlockuuid, 0, 10, requestMetadata);
     }
 
     public Map<String, Object> bulkListTokens(String unlockuuid, String[] tokens, Map<String, Object> requestMetadata) throws IOException {
@@ -1342,19 +1501,6 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("TenantGetConf", null, null);
     }
 
-    public Map<String, Object> getUserHTMLReport(String mode, String identity, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("mode", mode);
-        data.put("identity", identity);
-        return makeRequest("SystemGetUserHTMLReport", data, requestMetadata);
-    }
-
-    public Map<String, Object> getUserReport(String mode, String identity, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("mode", mode);
-        data.put("identity", identity);
-        return makeRequest("SystemGetUserReport", data, requestMetadata);
-    }
 
     // Session Management
     /**
@@ -1411,6 +1557,44 @@ public class DatabunkerproApi implements AutoCloseable {
 
     public Map<String, Object> getSystemStats(Map<String, Object> requestMetadata) throws IOException {
         return makeRequest("SystemGetSystemStats", null, requestMetadata);
+    }
+
+    /**
+     * Gets user report
+     *
+     * @param mode            User identification mode
+     * @param identity        User identifier
+     * @param requestMetadata Optional request metadata
+     * @return User report
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> getUserReport(String mode, String identity, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        return makeRequest("SystemGetUserReport", data, requestMetadata);
+    }
+
+    /**
+     * Gets user HTML report
+     *
+     * @param mode            User identification mode
+     * @param identity        User identifier
+     * @param requestMetadata Optional request metadata
+     * @return User HTML report
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> getUserHTMLReport(String mode, String identity, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        return makeRequest("SystemGetUserHTMLReport", data, requestMetadata);
+    }
+
+    public Map<String, Object> setLicenseKey(String licensekey, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("licensekey", licensekey);
+        return makeRequest("SystemSetLicenseKey", data, requestMetadata);
     }
 
     /**

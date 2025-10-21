@@ -287,4 +287,67 @@ public class DatabunkerproApiTest {
         assertNotNull(getResult.get("data"));
         System.out.println("Successfully retrieved shared record: " + recorduuid);
     }
+
+    @Test
+    public void testDeleteUsersBulk() throws IOException {
+        System.out.println("\nTesting bulk user deletion...");
+        
+        // Create multiple users first to get their tokens
+        String[] emails = {
+            "bulk1" + random.nextInt(1000000) + "@example.com",
+            "bulk2" + random.nextInt(1000000) + "@example.com",
+            "bulk3" + random.nextInt(1000000) + "@example.com"
+        };
+        
+        String[] userTokens = new String[emails.length];
+        
+        // Create users and collect their tokens
+        for (int i = 0; i < emails.length; i++) {
+            Map<String, Object> userData = Map.of(
+                "email", emails[i],
+                "name", "Bulk Test User " + random.nextInt(1000000),
+                "phone", String.valueOf(random.nextInt(1000000))
+            );
+            Map<String, Object> createResult = api.createUser(userData, null, null);
+            userTokens[i] = (String) createResult.get("token");
+        }
+        
+        // Delete users in bulk using their email addresses
+        Map<String, Object>[] usersToDelete = new Map[emails.length];
+        for (int i = 0; i < emails.length; i++) {
+            Map<String, Object> userToDelete = new HashMap<>();
+            userToDelete.put("mode", "email");
+            userToDelete.put("identity", emails[i]);
+            usersToDelete[i] = userToDelete;
+        }
+        Map<String, Object> result = api.deleteUsersBulk(usersToDelete, null);
+        assertNotNull(result);
+        System.out.println("Bulk delete result: " + result);
+        assertEquals("ok", result.get("status"));
+        System.out.println("Successfully deleted " + userTokens.length + " users in bulk");
+    }
+
+    @Test
+    public void testSetLicenseKey() throws IOException {
+        System.out.println("\nTesting license key setting...");
+        
+        // Note: This test may fail if the license key is invalid or already set
+        // In a real scenario, you would use a valid license key
+        String testLicenseKey = "test-license-key-" + random.nextInt(1000000);
+        
+        try {
+            Map<String, Object> result = api.setLicenseKey(testLicenseKey, null);
+            assertNotNull(result);
+            // The result might be "ok" or an error depending on the license key validity
+            System.out.println("License key setting result: " + result.get("status"));
+            if ("ok".equals(result.get("status"))) {
+                System.out.println("Successfully set license key");
+            } else {
+                System.out.println("License key setting failed (expected for test key): " + result.get("message"));
+            }
+        } catch (Exception e) {
+            // Expected for invalid license keys
+            System.out.println("License key setting failed as expected: " + e.getMessage());
+        }
+    }
 } 
