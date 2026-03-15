@@ -316,18 +316,17 @@ public class DatabunkerproApi implements AutoCloseable {
     }
 
     /**
-     * Searches for users using fuzzy matching
+     * Searches for users using fuzzy matching. The mode is auto-detected from the identity value:
+     * if it contains '@' it is treated as an email, otherwise it searches login, phone, and custom fields.
      *
-     * @param mode            User identification mode
-     * @param identity        User identifier to search for
+     * @param identity        User identifier to search for (email, login, phone, or custom value)
      * @param unlockuuid      UUID from bulk list unlock for search authorization
      * @param requestMetadata Optional request metadata
      * @return The search results
      * @throws IOException If an I/O error occurs
      */
-    public Map<String, Object> searchUsers(String mode, String identity, String unlockuuid, Map<String, Object> requestMetadata) throws IOException {
+    public Map<String, Object> searchUsers(String identity, String unlockuuid, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
-        data.put("mode", mode);
         data.put("identity", identity);
         data.put("unlockuuid", unlockuuid);
         return makeRequest("UserSearch", data, requestMetadata);
@@ -1557,6 +1556,41 @@ public class DatabunkerproApi implements AutoCloseable {
 
     public Map<String, Object> getSystemStats(Map<String, Object> requestMetadata) throws IOException {
         return makeRequest("SystemGetSystemStats", null, requestMetadata);
+    }
+
+    /**
+     * Gets user profiles across all tenants. Only accessible by the main tenant admin.
+     *
+     * @param mode            User identification mode (login, email, phone, or custom; token is not supported)
+     * @param identity        User identifier
+     * @param unlockuuid      UUID from bulk list unlock for authorization
+     * @param requestMetadata Optional request metadata
+     * @return User profiles across all tenants
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> getUserProfiles(String mode, String identity, String unlockuuid, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("unlockuuid", unlockuuid);
+        return makeRequest("SystemGetUserProfiles", data, requestMetadata);
+    }
+
+    /**
+     * Fuzzy-searches user profiles across all tenants. Only accessible by the main tenant admin.
+     * Mode is auto-detected: email if identity contains '@', otherwise searches login, phone, and custom fields.
+     *
+     * @param identity        User identifier to search for
+     * @param unlockuuid      UUID from bulk list unlock for authorization
+     * @param requestMetadata Optional request metadata
+     * @return Matching user profiles across all tenants
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> searchUserProfiles(String identity, String unlockuuid, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("identity", identity);
+        data.put("unlockuuid", unlockuuid);
+        return makeRequest("SystemSearchUserProfiles", data, requestMetadata);
     }
 
     /**
