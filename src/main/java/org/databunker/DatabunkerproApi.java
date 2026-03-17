@@ -165,7 +165,7 @@ public class DatabunkerproApi implements AutoCloseable {
                 if (groupname instanceof Number) {
                     data.put("groupid", groupname);
                 } else if (groupname instanceof String && ((String) groupname).matches("\\d+")) {
-                    data.put("groupid", groupname);
+                    data.put("groupid", Integer.parseInt((String) groupname));
                 } else {
                     data.put("groupname", groupname);
                 }
@@ -177,7 +177,7 @@ public class DatabunkerproApi implements AutoCloseable {
                 if (rolename instanceof Number) {
                     data.put("roleid", rolename);
                 } else if (rolename instanceof String && ((String) rolename).matches("\\d+")) {
-                    data.put("roleid", rolename);
+                    data.put("roleid", Integer.parseInt((String) rolename));
                 } else {
                     data.put("rolename", rolename);
                 }
@@ -406,7 +406,7 @@ public class DatabunkerproApi implements AutoCloseable {
             data.putAll(OptionsConverter.toMap(options));
         }
         if (roleref.matches("\\d+")) {
-            data.put("roleid", roleref);
+            data.put("roleid", Integer.parseInt(roleref));
         } else {
             data.put("rolename", roleref);
         }
@@ -839,7 +839,7 @@ public class DatabunkerproApi implements AutoCloseable {
      */
     public Map<String, Object> updateConnector(String connectorid, ConnectorOptions options, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
-        data.put("connectorid", connectorid);
+        data.put("connectorid", Integer.parseInt(connectorid));
         if (options != null) {
             data.putAll(OptionsConverter.toMap(options));
         }
@@ -861,7 +861,7 @@ public class DatabunkerproApi implements AutoCloseable {
             data.putAll(OptionsConverter.toMap(options));
         }
         if (connectorref.matches("\\d+")) {
-            data.put("connectorid", connectorref);
+            data.put("connectorid", Integer.parseInt(connectorref));
         } else {
             data.put("connectorname", connectorref);
         }
@@ -871,7 +871,7 @@ public class DatabunkerproApi implements AutoCloseable {
     public Map<String, Object> deleteConnector(String connectorref, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         if (connectorref.matches("\\d+")) {
-            data.put("connectorid", connectorref);
+            data.put("connectorid", Integer.parseInt(connectorref));
         } else {
             data.put("connectorname", connectorref);
         }
@@ -893,7 +893,7 @@ public class DatabunkerproApi implements AutoCloseable {
             data.putAll(OptionsConverter.toMap(options));
         }
         if (connectorref.matches("\\d+")) {
-            data.put("connectorid", connectorref);
+            data.put("connectorid", Integer.parseInt(connectorref));
         } else {
             data.put("connectorname", connectorref);
         }
@@ -905,7 +905,7 @@ public class DatabunkerproApi implements AutoCloseable {
         data.put("mode", mode);
         data.put("identity", identity);
         if (connectorref.matches("\\d+")) {
-            data.put("connectorid", connectorref);
+            data.put("connectorid", Integer.parseInt(connectorref));
         } else {
             data.put("connectorname", connectorref);
         }
@@ -917,7 +917,7 @@ public class DatabunkerproApi implements AutoCloseable {
         data.put("mode", mode);
         data.put("identity", identity);
         if (connectorref.matches("\\d+")) {
-            data.put("connectorid", connectorref);
+            data.put("connectorid", Integer.parseInt(connectorref));
         } else {
             data.put("connectorname", connectorref);
         }
@@ -929,7 +929,7 @@ public class DatabunkerproApi implements AutoCloseable {
         data.put("mode", mode);
         data.put("identity", identity);
         if (connectorref.matches("\\d+")) {
-            data.put("connectorid", connectorref);
+            data.put("connectorid", Integer.parseInt(connectorref));
         } else {
             data.put("connectorname", connectorref);
         }
@@ -956,7 +956,7 @@ public class DatabunkerproApi implements AutoCloseable {
     public Map<String, Object> getGroup(String groupref, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         if (groupref.matches("\\d+")) {
-            data.put("groupid", groupref);
+            data.put("groupid", Integer.parseInt(groupref));
         } else {
             data.put("groupname", groupref);
         }
@@ -985,7 +985,7 @@ public class DatabunkerproApi implements AutoCloseable {
      */
     public Map<String, Object> updateGroup(String groupid, GroupOptions options, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
-        data.put("groupid", groupid);
+        data.put("groupid", Integer.parseInt(groupid));
         if (options != null) {
             data.putAll(OptionsConverter.toMap(options));
         }
@@ -995,7 +995,7 @@ public class DatabunkerproApi implements AutoCloseable {
     public Map<String, Object> deleteGroup(String groupref, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         if (groupref.matches("\\d+")) {
-            data.put("groupid", groupref);
+            data.put("groupid", Integer.parseInt(groupref));
         } else {
             data.put("groupname", groupref);
         }
@@ -1007,7 +1007,7 @@ public class DatabunkerproApi implements AutoCloseable {
         data.put("mode", mode);
         data.put("identity", identity);
         if (groupref.matches("\\d+")) {
-            data.put("groupid", groupref);
+            data.put("groupid", Integer.parseInt(groupref));
         } else {
             data.put("groupname", groupref);
         }
@@ -1019,13 +1019,13 @@ public class DatabunkerproApi implements AutoCloseable {
         data.put("mode", mode);
         data.put("identity", identity);
         if (groupref.matches("\\d+")) {
-            data.put("groupid", groupref);
+            data.put("groupid", Integer.parseInt(groupref));
         } else {
             data.put("groupname", groupref);
         }
         if (roleref != null) {
             if (roleref.matches("\\d+")) {
-                data.put("roleid", roleref);
+                data.put("roleid", Integer.parseInt(roleref));
             } else {
                 data.put("rolename", roleref);
             }
@@ -1248,7 +1248,7 @@ public class DatabunkerproApi implements AutoCloseable {
      */
     public Map<String, Object> updateRole(String roleid, RoleOptions options, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
-        data.put("roleid", roleid);
+        data.put("roleid", Integer.parseInt(roleid));
         if (options != null) {
             data.putAll(OptionsConverter.toMap(options));
         }
@@ -1258,12 +1258,12 @@ public class DatabunkerproApi implements AutoCloseable {
     public Map<String, Object> linkPolicy(String roleref, String policyref, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         if (roleref.matches("\\d+")) {
-            data.put("roleid", roleref);
+            data.put("roleid", Integer.parseInt(roleref));
         } else {
             data.put("rolename", roleref);
         }
         if (policyref.matches("\\d+")) {
-            data.put("policyid", policyref);
+            data.put("policyid", Integer.parseInt(policyref));
         } else {
             data.put("policyname", policyref);
         }
@@ -1298,7 +1298,7 @@ public class DatabunkerproApi implements AutoCloseable {
      */
     public Map<String, Object> updatePolicy(String policyid, PolicyOptions options, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
-        data.put("policyid", policyid);
+        data.put("policyid", Integer.parseInt(policyid));
         if (options != null) {
             data.putAll(OptionsConverter.toMap(options));
         }
@@ -1311,7 +1311,7 @@ public class DatabunkerproApi implements AutoCloseable {
         Map<String, Object> data = new HashMap<>();
         if (policyref != null) {
             if (policyref.matches("\\d+")) {
-                data.put("policyid", policyref);
+                data.put("policyid", Integer.parseInt(policyref));
             } else {
                 data.put("policyname", policyref);
             }
@@ -1395,7 +1395,7 @@ public class DatabunkerproApi implements AutoCloseable {
         Map<String, Object> data = new HashMap<>();
         data.put("unlockuuid", unlockuuid);
         if (groupref.matches("\\d+")) {
-            data.put("groupid", groupref);
+            data.put("groupid", Integer.parseInt(groupref));
         } else {
             data.put("groupname", groupref);
         }
@@ -1591,6 +1591,54 @@ public class DatabunkerproApi implements AutoCloseable {
         data.put("identity", identity);
         data.put("unlockuuid", unlockuuid);
         return makeRequest("SystemSearchUserProfiles", data, requestMetadata);
+    }
+
+    /**
+     * Deletes user profiles across all tenants. Only accessible by the main tenant admin.
+     *
+     * @param mode            User identification mode (login, email, phone, custom, or token; token requires tenantref)
+     * @param identity        User identifier
+     * @param unlockuuid      UUID from bulk list unlock for authorization
+     * @param tenantref       Optional tenant ID (numeric string) or tenant name to restrict deletion to a single tenant (null to delete across all tenants)
+     * @param requestMetadata Optional request metadata
+     * @return Deleted user profiles with tenantid, tenantname, and token per row
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> deleteUserProfiles(String mode, String identity, String unlockuuid, String tenantref, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("unlockuuid", unlockuuid);
+        if (tenantref != null) {
+            if (tenantref.matches("\\d+")) {
+                data.put("tenantid", Integer.parseInt(tenantref));
+            } else {
+                data.put("tenantname", tenantref);
+            }
+        }
+        return makeRequest("SystemDeleteUserProfiles", data, requestMetadata);
+    }
+
+    /**
+     * Restores a deleted user profile for a specific tenant. Only accessible by the main tenant admin.
+     *
+     * @param token           User's unique token (UUID)
+     * @param unlockuuid      UUID from bulk list unlock for authorization
+     * @param tenantref       Tenant ID (numeric string) or tenant name
+     * @param requestMetadata Optional request metadata
+     * @return Restored user profile with status, result, token, and profile fields
+     * @throws IOException If an I/O error occurs
+     */
+    public Map<String, Object> restoreUserProfile(String token, String unlockuuid, String tenantref, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("token", token);
+        data.put("unlockuuid", unlockuuid);
+        if (tenantref.matches("\\d+")) {
+            data.put("tenantid", Integer.parseInt(tenantref));
+        } else {
+            data.put("tenantname", tenantref);
+        }
+        return makeRequest("SystemRestoreUserProfile", data, requestMetadata);
     }
 
     /**
