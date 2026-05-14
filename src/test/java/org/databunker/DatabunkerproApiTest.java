@@ -43,17 +43,10 @@ public class DatabunkerproApiTest {
                 if (data != null && "ok".equals(data.get("status"))) {
                     tenantName = (String) data.get("tenantname");
                     apiToken = (String) data.get("xtoken");
-                    
-                    // Test connection with new credentials
-                    try (DatabunkerproApi testApi = new DatabunkerproApi(API_URL, apiToken, tenantName)) {
-                        Map<String, Object> result = testApi.getSystemStats(null);
-                        serverAvailable = result != null && "ok".equals(result.get("status"));
-                        if (serverAvailable) {
-                            System.out.println("\nSuccessfully connected to DatabunkerPro server");
-                            System.out.println("Tenant: " + tenantName);
-                            System.out.println("API URL: " + API_URL);
-                        }
-                    }
+                    serverAvailable = true;
+                    System.out.println("\nSuccessfully connected to DatabunkerPro server");
+                    System.out.println("Tenant: " + tenantName);
+                    System.out.println("API URL: " + API_URL);
                 }
             }
         } catch (Exception e) {
