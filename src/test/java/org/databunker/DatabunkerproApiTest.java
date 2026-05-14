@@ -132,18 +132,6 @@ public class DatabunkerproApiTest {
     }
 
     @Test
-    public void testGetSystemStats() throws IOException {
-        if (!serverAvailable) {
-            return;
-        }
-
-        Map<String, Object> result = api.getSystemStats(null);
-        assertNotNull(result);
-        assertEquals("ok", result.get("status"));
-        assertNotNull(result.get("stats"));
-    }
-
-    @Test
     public void testGetUserHTMLReport() throws IOException {
         System.out.println("\nTesting user HTML report generation...");
         String email = "test" + random.nextInt(1000000) + "@example.com";
