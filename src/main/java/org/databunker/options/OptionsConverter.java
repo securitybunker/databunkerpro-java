@@ -147,51 +147,6 @@ public class OptionsConverter {
     }
 
     /**
-     * Converts ConnectorOptions to Map&lt;String, Object&gt;
-     * @param options The ConnectorOptions object
-     * @return A Map representation of the options
-     */
-    public static Map<String, Object> toMap(ConnectorOptions options) {
-        Map<String, Object> map = new HashMap<>();
-        if (options != null) {
-            if (options.getConnectorid() != null) {
-                map.put("connectorid", options.getConnectorid());
-            }
-            if (options.getConnectorname() != null) {
-                map.put("connectorname", options.getConnectorname());
-            }
-            if (options.getConnectortype() != null) {
-                map.put("connectortype", options.getConnectortype());
-            }
-            if (options.getApikey() != null) {
-                map.put("apikey", options.getApikey());
-            }
-            if (options.getUsername() != null) {
-                map.put("username", options.getUsername());
-            }
-            if (options.getConnectordesc() != null) {
-                map.put("connectordesc", options.getConnectordesc());
-            }
-            if (options.getDbhost() != null) {
-                map.put("dbhost", options.getDbhost());
-            }
-            if (options.getDbport() != null) {
-                map.put("dbport", options.getDbport());
-            }
-            if (options.getDbname() != null) {
-                map.put("dbname", options.getDbname());
-            }
-            if (options.getTablename() != null) {
-                map.put("tablename", options.getTablename());
-            }
-            if (options.getStatus() != null) {
-                map.put("status", options.getStatus());
-            }
-        }
-        return map;
-    }
-
-    /**
      * Converts TenantOptions to Map&lt;String, Object&gt;
      * @param options The TenantOptions object
      * @return A Map representation of the options

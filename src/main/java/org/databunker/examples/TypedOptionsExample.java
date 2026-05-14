@@ -6,7 +6,6 @@ import org.databunker.options.UserOptions;
 import org.databunker.options.SharedRecordOptions;
 import org.databunker.options.LegalBasisOptions;
 import org.databunker.options.AgreementAcceptOptions;
-import org.databunker.options.ConnectorOptions;
 import org.databunker.options.TenantOptions;
 import org.databunker.options.ProcessingActivityOptions;
 import org.databunker.options.GroupOptions;
@@ -103,25 +102,8 @@ public class TypedOptionsExample {
             
             Map<String, Object> agreement = api.acceptAgreement("email", "user@example.com", "marketing-consent", agreementOptions, null);
             System.out.println("Accepted agreement: " + agreement.get("status"));
-            
-            // Example 7: Create connector with typed ConnectorOptions
-            ConnectorOptions connectorOptions = ConnectorOptions.builder()
-                .connectorname("my-connector")
-                .connectortype("mysql")
-                .apikey("api-key-123")
-                .username("dbuser")
-                .connectordesc("MySQL database connector")
-                .dbhost("localhost")
-                .dbport(3306)
-                .dbname("mydb")
-                .tablename("users")
-                .status("active")
-                .build();
-            
-            Map<String, Object> connector = api.createConnector(connectorOptions, null);
-            System.out.println("Created connector: " + connector.get("connectorid"));
-            
-            // Example 8: Create processing activity with typed ProcessingActivityOptions
+
+            // Example 7: Create processing activity with typed ProcessingActivityOptions
             ProcessingActivityOptions activityOptions = ProcessingActivityOptions.builder()
                 .activity("data-processing")
                 .title("Data Processing Activity")
