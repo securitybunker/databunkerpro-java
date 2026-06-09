@@ -99,6 +99,8 @@ Then add the dependency to your `pom.xml`:
 - **Wrapping Key Generation**: Generate wrapping keys from Shamir's Secret Sharing keys
 - **Typed Patch Operations**: Use structured `PatchOperation` objects for user updates
 - **Bulk Token Operations**: Create multiple tokens efficiently with typed options
+- **Bulk User Deletion**: Delete multiple users efficiently in a single operation
+- **License Key Management**: Set system license keys for enhanced functionality
 - **Shared Record Management**: Create and retrieve shared records with partner organizations
 
 ### Improved Error Handling
@@ -185,6 +187,10 @@ System.out.println("Generated wrapping key: " + wrappingKey.get("wrappingkey"));
 // Get system metrics
 Map<String, Object> metrics = api.getSystemMetrics(null);
 System.out.println("System metrics: " + metrics);
+
+// Set system license key
+Map<String, Object> licenseResult = api.setLicenseKey("your-license-key", null);
+System.out.println("License key setting result: " + licenseResult.get("status"));
 ```
 
 ### Token Management

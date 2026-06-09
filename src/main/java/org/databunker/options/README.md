@@ -82,24 +82,6 @@ AgreementAcceptOptions options = AgreementAcceptOptions.builder()
     .build();
 ```
 
-### ConnectorOptions
-Used for configuring database and API connectors.
-
-```java
-ConnectorOptions options = ConnectorOptions.builder()
-    .connectorname("my-connector")
-    .connectortype("mysql")
-    .apikey("api-key-123")
-    .username("dbuser")
-    .connectordesc("MySQL database connector")
-    .dbhost("localhost")
-    .dbport(3306)
-    .dbname("mydb")
-    .tablename("users")
-    .status("active")
-    .build();
-```
-
 ### TenantOptions
 Used for creating and managing tenants.
 
@@ -273,25 +255,6 @@ AgreementAcceptOptions options = AgreementAcceptOptions.builder()
 Map<String, Object> agreement = api.acceptAgreement("email", "user@example.com", "marketing-consent", options, null);
 ```
 
-### Creating Connectors with Typed Options
-
-```java
-ConnectorOptions options = ConnectorOptions.builder()
-    .connectorname("my-connector")
-    .connectortype("mysql")
-    .apikey("api-key-123")
-    .username("dbuser")
-    .connectordesc("MySQL database connector")
-    .dbhost("localhost")
-    .dbport(3306)
-    .dbname("mydb")
-    .tablename("users")
-    .status("active")
-    .build();
-
-Map<String, Object> connector = api.createConnector(options, null);
-```
-
 ### Creating Processing Activities with Typed Options
 
 ```java
@@ -406,7 +369,6 @@ Map<String, Object> mapOptions = OptionsConverter.toMap(userOptions);
 ## Future Enhancements
 
 Additional option classes can be added for:
-- ConnectorOptions
 - LegalBasisOptions
 - ProcessingActivityOptions
 - TenantOptions
