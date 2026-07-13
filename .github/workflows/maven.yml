@@ -18,6 +18,12 @@ on:
         default: false
         type: boolean
 
+# Least privilege. `mvn deploy` to GitHub Packages needs packages:write; nothing here
+# needs write to repo contents.
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
