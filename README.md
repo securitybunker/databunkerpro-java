@@ -23,6 +23,7 @@ A Java client library for interacting with the DatabunkerPro API. DatabunkerPro 
 - Thread-safe implementation
 - Comprehensive test suite
 - Enhanced error handling
+- Continuous security scanning (Semgrep SAST, pinned CI actions)
 
 ## Requirements
 
@@ -160,6 +161,7 @@ PatchOperation[] patchOps = {
     new PatchOperation("add", "/profile/age", 25)
 };
 Map<String, Object> patchResult = api.patchUser("email", "user@example.com", patchOps, null);
+```
 
 ### App Data Management
 
@@ -272,6 +274,26 @@ JitPack automatically builds and publishes your GitHub repository as a Maven dep
 2. **JitPack automatically builds** and publishes the package
 
 3. **Check build status** at: https://jitpack.io/#securitybunker/databunkerpro-java
+
+## Security
+
+This library is scanned on every push and pull request, with a weekly scheduled sweep to catch drift:
+
+- **SAST (Semgrep):** static analysis using the `p/java`, `p/secrets`, `p/security-audit`, and `p/owasp-top-ten` rulesets. A finding fails the check, and results are published to the repository's **Code Scanning** tab. See [`.github/workflows/semgrep.yml`](.github/workflows/semgrep.yml).
+- **Supply-chain hardening:** every GitHub Action is pinned to a full commit SHA, so a mutable tag (`@v4`) cannot be silently repointed to malicious code.
+
+Reproduce the SAST scan locally:
+
+```bash
+pip install semgrep
+semgrep scan \
+    --config p/java \
+    --config p/secrets \
+    --config p/security-audit \
+    --config p/owasp-top-ten
+```
+
+To report a security vulnerability, please email hello@databunker.org rather than opening a public issue.
 
 ## Contributing
 
