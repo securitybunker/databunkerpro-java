@@ -91,7 +91,7 @@ Then add the dependency to your `pom.xml`:
 <dependency>
     <groupId>org.databunker</groupId>
     <artifactId>databunkerpro-java</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1-SNAPSHOT</version>
 </dependency>
 ```
 
