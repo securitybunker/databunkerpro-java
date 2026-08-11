@@ -84,4 +84,12 @@ public class FileOptions {
             return new FileOptions(this);
         }
     }
+
+    /**
+     * Creates a new builder for FileOptions
+     * @return A new builder instance
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
 }

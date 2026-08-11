@@ -7,6 +7,7 @@ A Java client library for interacting with the DatabunkerPro API. DatabunkerPro 
 - Complete implementation of the DatabunkerPro API
 - User management (create, get, update, delete, patch)
 - App data management
+- File storage (encrypted per-user files with tags and expiration)
 - Legal basis and agreement management
 - Connector management
 - Group and role management
@@ -48,7 +49,7 @@ Add the repository and dependency to your `pom.xml`:
 <dependency>
     <groupId>org.databunker</groupId>
     <artifactId>databunkerpro-java</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -67,11 +68,11 @@ Add the JitPack repository and dependency to your `pom.xml`:
 <dependency>
     <groupId>com.github.securitybunker</groupId>
     <artifactId>databunkerpro-java</artifactId>
-    <version>v1.0.0</version>
+    <version>v1.1.0</version>
 </dependency>
 ```
 
-**Note**: Replace `v1.0.0` with your desired version tag (e.g., `v1.0.1`, `v2.0.0`, etc.)
+**Note**: Replace `v1.1.0` with your desired version tag (e.g., `v1.1.1`, `v2.0.0`, etc.)
 
 ### From Local Maven Repository
 
@@ -90,11 +91,23 @@ Then add the dependency to your `pom.xml`:
 <dependency>
     <groupId>org.databunker</groupId>
     <artifactId>databunkerpro-java</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
 ## New Features in Latest Version
+
+### New in 1.1.0
+
+- **File API**: Store, retrieve, list, retag and delete encrypted per-user files
+  (`createFile`, `getFile`, `listUserFiles`, `replaceFileTags`, `deleteFile`), plus
+  `bulkListFilesByTag` for bulk lookups. Options are passed with the typed `FileOptions`
+  builder (mimetype, tags, `finaltime`, `slidingtime`).
+- **Apache HttpClient 5**: Migrated off end-of-life HttpClient 4.x. If your project pins
+  HttpClient transitively, it now resolves `org.apache.httpcomponents.client5:httpclient5`.
+- **Removed internal portal endpoints**: `preloginUser`, `loginUser`, `createCaptcha`,
+  `getUIConf` and `getTenantConf` were internal to the DatabunkerPro web portal and are
+  no longer part of the client.
 
 ### Enhanced API Methods
 - **Wrapping Key Generation**: Generate wrapping keys from Shamir's Secret Sharing keys
@@ -174,6 +187,39 @@ api.createAppData("email", "user@example.com", "appname", data, null);
 // Get app data
 Map<String, Object> appData = api.getAppData("email", "user@example.com", "appname", null);
 ```
+
+### File Storage
+
+```java
+// Store a file. The content is passed base64-encoded.
+String filedata = Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get("passport.pdf")));
+FileOptions fileOptions = FileOptions.builder()
+    .mimetype("application/pdf")
+    .tags(Arrays.asList("kyc", "passport"))
+    .finaltime("365d")
+    .build();
+Map<String, Object> created = api.createFile("email", "user@example.com", "passport.pdf", filedata, fileOptions, null);
+String fileuuid = (String) created.get("fileuuid");
+
+// Get a file by uuid
+Map<String, Object> file = api.getFile("email", "user@example.com", fileuuid, null);
+
+// Get a file by name (the newest match is returned)
+Map<String, Object> byName = api.getFile("email", "user@example.com", null, "passport.pdf", false, null);
+
+// List the metadata of a user's files, optionally filtered by a single tag
+Map<String, Object> allFiles = api.listUserFiles("email", "user@example.com", null);
+Map<String, Object> kycFiles = api.listUserFiles("email", "user@example.com", "kyc", null);
+
+// Replace the complete tag set on a file
+api.replaceFileTags("email", "user@example.com", fileuuid, Arrays.asList("kyc", "verified"), null);
+
+// Delete a file
+api.deleteFile("email", "user@example.com", fileuuid, null);
+```
+
+Tags are lowercased and de-duplicated by the server, must match `^[a-z0-9][a-z0-9._-]{0,49}$`,
+and at most 16 are kept per file.
 
 ### System Configuration
 
@@ -267,8 +313,8 @@ JitPack automatically builds and publishes your GitHub repository as a Maven dep
 
 1. **Create a Git tag** for your release:
    ```bash
-   git tag v1.0.0
-   git push origin v1.0.0
+   git tag v1.1.0
+   git push origin v1.1.0
    ```
 
 2. **JitPack automatically builds** and publishes the package
