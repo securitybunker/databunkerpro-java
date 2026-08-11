@@ -1,14 +1,16 @@
 package org.databunker;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.databunker.options.BasicOptions;
 import org.databunker.options.UserOptions;
 import org.databunker.options.SharedRecordOptions;
@@ -84,7 +86,7 @@ public class DatabunkerproApi implements AutoCloseable {
             if (requestMetadata != null) {
                 bodyData.put("request_metadata", requestMetadata);
             }
-            StringEntity entity = new StringEntity(objectMapper.writeValueAsString(bodyData));
+            StringEntity entity = new StringEntity(objectMapper.writeValueAsString(bodyData), ContentType.APPLICATION_JSON);
             request.setEntity(entity);
         }
 
@@ -93,7 +95,7 @@ public class DatabunkerproApi implements AutoCloseable {
             String responseString = EntityUtils.toString(entity);
             Map<String, Object> result = objectMapper.readValue(responseString, Map.class);
 
-            if (response.getStatusLine().getStatusCode() < 200 || response.getStatusLine().getStatusCode() >= 300) {
+            if (response.getCode() < 200 || response.getCode() >= 300) {
                 if (result.containsKey("status")) {
                     return result;
                 } else {
@@ -134,7 +136,7 @@ public class DatabunkerproApi implements AutoCloseable {
             if (requestMetadata != null) {
                 bodyData.put("request_metadata", requestMetadata);
             }
-            StringEntity entity = new StringEntity(objectMapper.writeValueAsString(bodyData));
+            StringEntity entity = new StringEntity(objectMapper.writeValueAsString(bodyData), ContentType.APPLICATION_JSON);
             request.setEntity(entity);
         }
 
@@ -1696,6 +1698,8 @@ public class DatabunkerproApi implements AutoCloseable {
             HttpEntity entity = response.getEntity();
             String metricsText = EntityUtils.toString(entity);
             return parsePrometheusMetrics(metricsText);
+        } catch (ParseException error) {
+            throw new IOException("Failed to parse the metrics response", error);
         }
     }
 
