@@ -13,10 +13,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import org.databunker.options.BasicOptions;
+import org.databunker.options.FileOptions;
 import org.databunker.options.SharedRecordOptions;
 
 import static org.junit.Assert.*;
@@ -267,6 +272,89 @@ public class DatabunkerproApiTest {
         assertEquals("ok", getResult.get("status"));
         assertNotNull(getResult.get("data"));
         System.out.println("Successfully retrieved shared record: " + recorduuid);
+    }
+
+    @Test
+    public void testFileManagement() throws IOException {
+        System.out.println("\nTesting file management...");
+        String email = "test" + random.nextInt(1000000) + "@example.com";
+        Map<String, Object> userData = Map.of(
+            "email", email,
+            "name", "Test User " + random.nextInt(1000000),
+            "phone", String.valueOf(random.nextInt(1000000))
+        );
+        api.createUser(userData, null, null);
+
+        // Store a file
+        String content = "file content " + random.nextInt(1000000);
+        String filedata = Base64.getEncoder().encodeToString(content.getBytes(StandardCharsets.UTF_8));
+        String filename = "notes" + random.nextInt(1000000) + ".txt";
+        FileOptions options = FileOptions.builder()
+            .mimetype("text/plain")
+            .tags(Arrays.asList("kyc", "notes"))
+            .finaltime("1d")
+            .build();
+        Map<String, Object> createResult = api.createFile("email", email, filename, filedata, options, null);
+        assertNotNull(createResult);
+        assertEquals("ok", createResult.get("status"));
+        assertNotNull(createResult.get("fileuuid"));
+        String fileuuid = (String) createResult.get("fileuuid");
+        System.out.println("Successfully created file: " + fileuuid);
+
+        // Get the file by uuid and verify the content round-trips
+        Map<String, Object> getResult = api.getFile("email", email, fileuuid, null);
+        assertNotNull(getResult);
+        assertEquals("ok", getResult.get("status"));
+        assertEquals(filename, getResult.get("filename"));
+        assertEquals("text/plain", getResult.get("mimetype"));
+        assertEquals(content, new String(Base64.getDecoder().decode((String) getResult.get("filedata")),
+            StandardCharsets.UTF_8));
+        System.out.println("Successfully retrieved file by uuid: " + fileuuid);
+
+        // Get the same file by name
+        Map<String, Object> byName = api.getFile("email", email, null, filename, false, null);
+        assertNotNull(byName);
+        assertEquals("ok", byName.get("status"));
+        assertEquals(fileuuid, byName.get("fileuuid"));
+        System.out.println("Successfully retrieved file by name: " + filename);
+
+        // List all files of the user
+        Map<String, Object> listResult = api.listUserFiles("email", email, null);
+        assertNotNull(listResult);
+        assertEquals("ok", listResult.get("status"));
+        List<Map<String, Object>> files = (List<Map<String, Object>>) listResult.get("files");
+        assertNotNull(files);
+        assertEquals(1, files.size());
+        assertEquals(fileuuid, files.get(0).get("fileuuid"));
+
+        // List files filtered by a tag, and confirm a foreign tag matches nothing
+        Map<String, Object> taggedResult = api.listUserFiles("email", email, "kyc", null);
+        assertEquals("ok", taggedResult.get("status"));
+        assertEquals(1, ((List<Map<String, Object>>) taggedResult.get("files")).size());
+        Map<String, Object> otherTagResult = api.listUserFiles("email", email, "invoice", null);
+        assertEquals("ok", otherTagResult.get("status"));
+        assertTrue(((List<Map<String, Object>>) otherTagResult.get("files")).isEmpty());
+        System.out.println("Successfully listed user files");
+
+        // Replace the tag set
+        Map<String, Object> retagResult = api.replaceFileTags("email", email, fileuuid,
+            Arrays.asList("kyc", "verified"), null);
+        assertNotNull(retagResult);
+        assertEquals("ok", retagResult.get("status"));
+        List<String> tags = (List<String>) retagResult.get("tags");
+        assertNotNull(tags);
+        assertEquals(2, tags.size());
+        assertTrue(tags.contains("verified"));
+        assertFalse(tags.contains("notes"));
+        System.out.println("Successfully replaced file tags: " + tags);
+
+        // Delete the file
+        Map<String, Object> deleteResult = api.deleteFile("email", email, fileuuid, null);
+        assertNotNull(deleteResult);
+        assertEquals("ok", deleteResult.get("status"));
+        Map<String, Object> afterDelete = api.listUserFiles("email", email, null);
+        assertTrue(((List<Map<String, Object>>) afterDelete.get("files")).isEmpty());
+        System.out.println("Successfully deleted file: " + fileuuid);
     }
 
     @Test
