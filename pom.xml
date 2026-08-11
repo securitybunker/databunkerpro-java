@@ -20,18 +20,11 @@
     </properties>
 
     <dependencies>
-        <!-- Apache HttpClient -->
+        <!-- Apache HttpClient 5 (httpcore5 comes in transitively) -->
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.14</version>
-        </dependency>
-
-        <!-- Apache HttpCore -->
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <version>4.4.16</version>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>5.6.1</version>
         </dependency>
 
         <!-- Jackson for JSON processing -->
