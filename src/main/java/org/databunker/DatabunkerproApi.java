@@ -23,10 +23,12 @@ import org.databunker.options.RoleOptions;
 import org.databunker.options.TokenOptions;
 import org.databunker.options.PolicyOptions;
 import org.databunker.options.PatchOperation;
+import org.databunker.options.FileOptions;
 import org.databunker.options.OptionsConverter;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -347,28 +349,6 @@ public class DatabunkerproApi implements AutoCloseable {
         return makeRequest("UserListVersions", data, requestMetadata);
     }
 
-    // User Authentication
-    public Map<String, Object> preloginUser(String mode, String identity, String code, String captchacode, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("mode", mode);
-        data.put("identity", identity);
-        data.put("code", code);
-        data.put("captchacode", captchacode);
-        return makeRequest("UserPrelogin", data, requestMetadata);
-    }
-
-    public Map<String, Object> loginUser(String mode, String identity, String smscode, Map<String, Object> requestMetadata) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("mode", mode);
-        data.put("identity", identity);
-        data.put("smscode", smscode);
-        return makeRequest("UserLogin", data, requestMetadata);
-    }
-
-    public Map<String, Object> createCaptcha(Map<String, Object> requestMetadata) throws IOException {
-        return makeRequest("CaptchaCreate", null, requestMetadata);
-    }
-
     // Create user API Access Token
     /**
      * Creates an access token for a user
@@ -606,6 +586,129 @@ public class DatabunkerproApi implements AutoCloseable {
         data.put("identity", identity);
         data.put("appname", appname);
         return makeRequest("AppdataListVersions", data, requestMetadata);
+    }
+
+    // File Storage
+    /**
+     * Stores an encrypted file for a user
+     *
+     * @param mode            User identification mode (login, token, email, phone, custom)
+     * @param identity        User identifier corresponding to the mode
+     * @param filename        Name of the file
+     * @param filedata        File content, base64-encoded
+     * @param options         Optional mimetype, tags and expiration
+     * @param requestMetadata Optional request metadata
+     * @return The stored file information, including its fileuuid
+     * @throws IOException if the request fails
+     */
+    public Map<String, Object> createFile(String mode, String identity, String filename, String filedata, FileOptions options, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("filename", filename);
+        data.put("filedata", filedata);
+        if (options != null) {
+            data.putAll(OptionsConverter.toMap(options));
+        }
+        return makeRequest("FileCreate", data, requestMetadata);
+    }
+
+    public Map<String, Object> createFile(String mode, String identity, String filename, String filedata, Map<String, Object> requestMetadata) throws IOException {
+        return createFile(mode, identity, filename, filedata, null, requestMetadata);
+    }
+
+    /**
+     * Gets a user file, selected by fileuuid or filename
+     *
+     * @param mode            User identification mode
+     * @param identity        User identifier corresponding to the mode
+     * @param fileuuid        UUID of the file, or null
+     * @param filename        Name of the file, or null. The newest match is returned.
+     * @param raw             When true the decrypted bytes are returned directly, or null
+     * @param requestMetadata Optional request metadata
+     * @return The file content and metadata
+     * @throws IOException if the request fails
+     */
+    public Map<String, Object> getFile(String mode, String identity, String fileuuid, String filename, Boolean raw, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        if (fileuuid != null) {
+            data.put("fileuuid", fileuuid);
+        }
+        if (filename != null) {
+            data.put("filename", filename);
+        }
+        if (raw != null) {
+            data.put("raw", raw);
+        }
+        return makeRequest("FileGet", data, requestMetadata);
+    }
+
+    public Map<String, Object> getFile(String mode, String identity, String fileuuid, Map<String, Object> requestMetadata) throws IOException {
+        return getFile(mode, identity, fileuuid, null, null, requestMetadata);
+    }
+
+    /**
+     * Lists the metadata of files owned by a user
+     *
+     * @param mode            User identification mode
+     * @param identity        User identifier corresponding to the mode
+     * @param tag             Return only files carrying this tag, or null. A single tag only.
+     * @param requestMetadata Optional request metadata
+     * @return The list of files
+     * @throws IOException if the request fails
+     */
+    public Map<String, Object> listUserFiles(String mode, String identity, String tag, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        if (tag != null) {
+            data.put("tag", tag);
+        }
+        return makeRequest("FileListUserFiles", data, requestMetadata);
+    }
+
+    public Map<String, Object> listUserFiles(String mode, String identity, Map<String, Object> requestMetadata) throws IOException {
+        return listUserFiles(mode, identity, null, requestMetadata);
+    }
+
+    /**
+     * Replaces the complete tag set on a file
+     *
+     * @param mode            User identification mode
+     * @param identity        User identifier corresponding to the mode
+     * @param fileuuid        UUID of the file to retag
+     * @param tags            The complete replacement tag set
+     * @param requestMetadata Optional request metadata
+     * @return The normalised tag set now stored
+     * @throws IOException if the request fails
+     */
+    public Map<String, Object> replaceFileTags(String mode, String identity, String fileuuid, List<String> tags, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("fileuuid", fileuuid);
+        data.put("tags", tags);
+        return makeRequest("FileReplaceTags", data, requestMetadata);
+    }
+
+    /**
+     * Deletes a user file
+     *
+     * @param mode            User identification mode
+     * @param identity        User identifier corresponding to the mode
+     * @param fileuuid        UUID of the file to delete
+     * @param requestMetadata Optional request metadata
+     * @return The deletion result
+     * @throws IOException if the request fails
+     */
+    public Map<String, Object> deleteFile(String mode, String identity, String fileuuid, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mode", mode);
+        data.put("identity", identity);
+        data.put("fileuuid", fileuuid);
+        return makeRequest("FileDelete", data, requestMetadata);
     }
 
     // Legal Basis Management
@@ -1343,6 +1446,30 @@ public class DatabunkerproApi implements AutoCloseable {
         return bulkListAllAuditEvents(unlockuuid, 0, 10, requestMetadata);
     }
 
+    /**
+     * Lists files carrying a tag, across all users in the tenant
+     *
+     * @param unlockuuid      UUID from bulk list unlock
+     * @param tag             The tag to filter on. A single tag only.
+     * @param offset          Offset for pagination
+     * @param limit           Limit for pagination
+     * @param requestMetadata Optional request metadata
+     * @return The list of matching files
+     * @throws IOException if the request fails
+     */
+    public Map<String, Object> bulkListFilesByTag(String unlockuuid, String tag, int offset, int limit, Map<String, Object> requestMetadata) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("unlockuuid", unlockuuid);
+        data.put("tag", tag);
+        data.put("offset", offset);
+        data.put("limit", limit);
+        return makeRequest("BulkListFilesByTag", data, requestMetadata);
+    }
+
+    public Map<String, Object> bulkListFilesByTag(String unlockuuid, String tag, Map<String, Object> requestMetadata) throws IOException {
+        return bulkListFilesByTag(unlockuuid, tag, 0, 10, requestMetadata);
+    }
+
     public Map<String, Object> bulkListTokens(String unlockuuid, String[] tokens, Map<String, Object> requestMetadata) throws IOException {
         Map<String, Object> data = new HashMap<>();
         data.put("unlockuuid", unlockuuid);
@@ -1356,16 +1483,6 @@ public class DatabunkerproApi implements AutoCloseable {
         data.put("tokens", tokens);
         return makeRequest("BulkDeleteTokens", data, requestMetadata);
     }
-
-    // System Configuration
-    public Map<String, Object> getUIConf() throws IOException {
-        return makeRequest("TenantGetUIConf", null, null);
-    }
-
-    public Map<String, Object> getTenantConf() throws IOException {
-        return makeRequest("TenantGetConf", null, null);
-    }
-
 
     // Session Management
     /**

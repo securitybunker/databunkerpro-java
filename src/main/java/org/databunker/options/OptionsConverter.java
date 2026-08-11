@@ -274,4 +274,28 @@ public class OptionsConverter {
         }
         return map;
     }
+
+    /**
+     * Converts FileOptions to a Map
+     * @param options The FileOptions to convert
+     * @return A Map containing the non-null options
+     */
+    public static Map<String, Object> toMap(FileOptions options) {
+        Map<String, Object> map = new HashMap<>();
+        if (options != null) {
+            if (options.getMimetype() != null) {
+                map.put("mimetype", options.getMimetype());
+            }
+            if (options.getTags() != null) {
+                map.put("tags", options.getTags());
+            }
+            if (options.getFinaltime() != null) {
+                map.put("finaltime", options.getFinaltime());
+            }
+            if (options.getSlidingtime() != null) {
+                map.put("slidingtime", options.getSlidingtime());
+            }
+        }
+        return map;
+    }
 } 
