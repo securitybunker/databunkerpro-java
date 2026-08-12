@@ -95,6 +95,106 @@ Then add the dependency to your `pom.xml`:
 </dependency>
 ```
 
+## Quickstart
+
+You need a Databunker Pro instance to talk to. Demo mode gives you one in a single command — no database, no configuration, everything held in memory:
+
+```bash
+docker run -p 3000:3000 -d --rm --name databunkerpro securitybunker/databunkerpro demo
+```
+
+Check that it came up:
+
+```bash
+docker logs databunkerpro
+```
+
+```
+ Databunker Pro demo is ready
+  Web UI:            http://localhost:3000/
+  Root access token: DEMO
+  Database:          in-memory, erased on restart
+```
+
+The root access token in demo mode is the fixed string `DEMO`. Save this as `Quickstart.java`:
+
+```java
+import org.databunker.DatabunkerproApi;
+import org.databunker.options.FileOptions;
+
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Quickstart {
+    public static void main(String[] args) throws Exception {
+        DatabunkerproApi api = new DatabunkerproApi("http://localhost:3000", "DEMO", null);
+
+        // Create a user record. The vault encrypts the profile and returns a user token.
+        Map<String, Object> profile = new HashMap<>();
+        profile.put("email", "john@javatest.com");
+        profile.put("name", "John Doe");
+        profile.put("phone", "+15551234567");
+
+        Map<String, Object> created = api.createUser(profile, null, null);
+        System.out.println("User token: " + created.get("token"));
+
+        // Read the record back by any indexed field: token, login, email, phone, custom.
+        Map<String, Object> user = api.getUser("email", "john@javatest.com", null);
+        System.out.println("Profile: " + user.get("profile"));
+
+        // Store an encrypted file against that user, tagged by document type.
+        String filedata = Base64.getEncoder()
+                .encodeToString("fake passport scan bytes".getBytes());
+        FileOptions options = FileOptions.builder()
+                .tags(Arrays.asList("passport", "kyc"))
+                .build();
+
+        Map<String, Object> file = api.createFile(
+                "email", "john@javatest.com", "passport.jpg", filedata, options, null);
+        System.out.println("File uuid: " + file.get("fileuuid") + " | tags: " + file.get("tags"));
+
+        // List the user's files, filtered by tag.
+        Map<String, Object> listing = api.listUserFiles("email", "john@javatest.com", "kyc", null);
+        System.out.println("Files tagged kyc: " + listing.get("files"));
+
+        // Fetch the file back. Content returns base64-encoded in filedata.
+        Map<String, Object> fetched = api.getFile(
+                "email", "john@javatest.com", (String) file.get("fileuuid"), null);
+        byte[] bytes = Base64.getDecoder().decode((String) fetched.get("filedata"));
+        System.out.println("Decrypted: " + new String(bytes));
+
+        // Delete user record.
+        api.deleteUser("email", "john@javatest.com", null);
+        System.out.println("User deleted");
+    }
+}
+```
+
+```bash
+mvn compile exec:java -Dexec.mainClass=Quickstart
+```
+
+```
+User token: 91db0180-829d-9e9d-000a-e6975c746366
+Profile: {email=john@javatest.com, name=John Doe, phone=+15551234567}
+File uuid: 94e13382-b117-2a6e-ac2f-edc8ae2fb743 | tags: [kyc, passport]
+Files tagged kyc: [{filename=passport.jpg, fileuuid=94e13382-b117-2a6e-ac2f-edc8ae2fb743, tags=[kyc, passport], ...}]
+Decrypted: fake passport scan bytes
+User deleted
+```
+
+Every method takes its optional arguments explicitly, since Java has no default parameters — pass `null` for the options and request-metadata parameters when you do not need them. Tags are lowercased, de-duplicated and sorted on write, which is why they come back in a different order than they were sent.
+
+When you are done, stop the instance. It was started with `--rm`, so the container and its in-memory database are discarded:
+
+```bash
+docker stop databunkerpro
+```
+
+> **Demo mode is for evaluation only.** The database is in memory, the wrapping key is a fixed public value, and the root token is the well-known string `DEMO`. Never point it at real personal data. For a real deployment see the [installation guide](https://docs.databunker.org/pro/installation/docker-compose).
+
 ## New Features in Latest Version
 
 ### New in 1.1.0
