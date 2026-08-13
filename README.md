@@ -4,22 +4,26 @@ A Java client library for interacting with the DatabunkerPro API. DatabunkerPro 
 
 ## Features
 
-- Complete implementation of the DatabunkerPro API
-- User management (create, get, update, delete, patch)
-- App data management
-- File storage (encrypted per-user files with tags and expiration)
-- Legal basis and agreement management
-- Connector management
-- Group and role management
-- Policy management
-- Token management (including bulk operations)
-- Audit management
-- Tenant management
-- Session management
-- System configuration and metrics
-- Bulk operations
-- Shared record management
-- Wrapping key generation for Shamir's Secret Sharing
+The client covers the full Databunker Pro API:
+
+- User Management
+- App Data Management
+- File Storage
+- Tokenization
+- Legal Basis & Agreement Management
+- Processing Activity Management
+- Group Management
+- Role & Policy Management
+- Session Management
+- Shared Records
+- Bulk Operations
+- Audit Management
+- Tenant Management
+- Authentication & Access Tokens
+- System Operations
+
+Java-specific:
+
 - Typed options classes for better type safety
 - Thread-safe implementation
 - Comprehensive test suite
